@@ -1,0 +1,29 @@
+# 配置文件（含敏感信息）
+config.yaml
+
+# Logo资产（涉及商标权）
+assets/logo-wall/logos/
+assets/logo-wall/*.pptx
+assets/logo-wall/*.xlsx
+assets/logo-wall/order.txt
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 临时文件
+*.tmp
+*.log
+*.bak
+
+# 输出文件
+output/
+*.pptx
+!config.example.yaml

@@ -1,0 +1,34 @@
+# 行业解决方案PPT Skill 配置文件
+# 复制本文件为 config.yaml 并填写实际配置
+
+# V1.5医药行业模板PPT路径（模式A的基础模板）
+template_path: "D:/兰光/2026年9月3日 重量分析产品解决方案-医药行业/兰光集成式检测系统解决方案（制药质量控制）-V1.5.pptx"
+
+# 本地标准库路径（可选，用于标准原文核对）
+standard_lib: "D:/兰光/行业标准/"
+
+# 飞书素材库配置
+feishu_wiki:
+  # 行业标准表（10大行业、85条标准）
+  standard_table: "https://ucn0ovkrddzj.feishu.cn/wiki/ZiY7wZN3RiXKZ1kIvMIc25uHnVh"
+  # 检测报告库（27条报告索引）
+  report_library: "https://ucn0ovkrddzj.feishu.cn/wiki/FGNlwh8jKiHa0gknHorc8RbwnXc"
+
+# 标准全文公开系统（在线核对强制性国标）
+standard_open_system: "https://openstd.samr.gov.cn/bzgk/gb/"
+
+# 客户墙配置
+logo_wall:
+  # 医药行业49家客户logo资产目录（需向管理员获取）
+  pharma_logos_dir: "assets/logo-wall/logos"
+  # 客户墙模板PPT
+  template_pptx: "assets/logo-wall/template.pptx"
+  # 企业排序文件
+  order_file: "assets/logo-wall/order.txt"
+
+# 输出配置
+output:
+  # 默认导出目录
+  export_dir: "./output"
+  # 默认文件命名格式
+  filename_format: "兰光集成式检测系统解决方案（{industry}质量控制）-V{version}.pptx"
