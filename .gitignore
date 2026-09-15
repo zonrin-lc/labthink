@@ -1,11 +1,14 @@
 # 配置文件（含敏感信息）
 config.yaml
 
+# 管理员内部文档（不公开，仅本地）
+ADMIN.md
+
 # Logo资产（涉及商标权）
-assets/logo-wall/logos/
-assets/logo-wall/*.pptx
-assets/logo-wall/*.xlsx
-assets/logo-wall/order.txt
+skills/*/assets/logos/
+skills/*/assets/*.pptx
+skills/*/assets/*.xlsx
+skills/*/assets/order.txt
 
 # 系统文件
 .DS_Store
@@ -26,4 +29,3 @@ __pycache__/
 # 输出文件
 output/
 *.pptx
-!config.example.yaml

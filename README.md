@@ -1,114 +1,90 @@
-# 行业解决方案PPT制作Skill
+# Labthink 豆包Skill集合
 
-基于企业已有行业方案模板，快速生成其他行业解决方案PPT的豆包Skill。
+济南兰光机电技术有限公司内部使用的豆包Skill集合，用于提升工作效率。
 
-## 功能特性
+## 🚀 快速安装（复制这句话发给豆包）
 
-- **模板复用模式**：基于已定稿的医药行业PPT（V1.5，32页）扩展到食品、化工、环境、建材等其他行业
-- **智能术语替换**：自动加载对应行业知识文件，确保检测项目术语准确（如"炽灼残渣"→"灰分"、"不挥发物"→"总迁移量"）
-- **客户墙制作工具链**：内置logo抓取、标准化、排版完整流程
-- **事实审查清单**：逐条核验标准号、数据、术语，禁止编造
-- **实战避坑指南**：沉淀自食品行业项目的10大类高频问题及解决方案
-
-## 支持行业
-
-- 医药/药包材/制药用水（模板本身）
-- 食品 + 食品接触材料
-- 化工/化学试剂/涂料/胶粘剂
-- 环境监测/水质/大气/土壤/固废
-- 建材/水泥/陶瓷/玻璃/铸造
-- 橡胶/塑料及高分子
-- 冶金/钢铁/有色金属/矿石
-- 造纸/纸浆/纺织/皮革
-- 饲料/肥料/农药
-- 煤炭/石油/润滑油
-- 烟草
-
-## 安装方法
-
-### 方式1：一键安装（推荐）
-
-```bash
-# Windows
-install.bat
-
-# Mac/Linux
-./install.sh
+```
+帮我安装labthink豆包skill集合：
+1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
+2. 进入目录运行 install-all.bat 安装所有skill
+3. 告诉我安装了哪些skill
 ```
 
-### 方式2：手动安装
+安装完成后**重启豆包**即可使用。
 
-1. 下载或clone本仓库
-2. 将整个`industry-solution-ppt`文件夹复制到豆包user_skills目录：
-   - Windows: `C:\Users\<用户名>\AppData\Local\Doubao\User Data\Default\.doubao\agent_mode\workspace\.user_skills\`
-   - Mac: `~/.doubao/agent_mode/workspace/.user_skills/`
-3. 重启豆包
+> 详细说明见 [同事使用指南](USAGE.md) | [快速安装卡片](QUICKSTART.md)
 
-## 配置
+## Skill列表
 
-1. 复制`config.example.yaml`为`config.yaml`
-2. 填写以下配置项：
-   - `template_path`: V1.5医药行业模板PPT路径
-   - `standard_lib`: 本地标准库路径（可选）
-   - `feishu_wiki.standard_table`: 行业标准表飞书wiki链接
-   - `feishu_wiki.report_library`: 检测报告库飞书wiki链接
-3. 申请飞书wiki访问权限（联系管理员）
+| Skill | 说明 | 状态 |
+|---|---|---|
+| [industry-solution-ppt](skills/industry-solution-ppt/) | 基于医药行业方案模板，快速生成其他行业（食品/化工/环境等）解决方案PPT | ✅ 可用 |
+| [logo-wall](skills/logo-wall/) | 企业Logo搜集与PPT客户墙排版工具（支持49家客户logo墙自动生成） | ✅ 可用 |
 
-## 使用方法
-
-在豆包中直接输入需求：
+## 使用示例
 
 ```
 基于医药行业方案，帮我做一份食品行业的解决方案PPT
 ```
 
-或更具体：
-
 ```
-按industry-solution-ppt的流程，做一份化工行业方案，重点突出C840蒸发残渣检测
+帮我做一份食品行业49家企业的logo墙PPT
 ```
 
-Skill会自动：
-1. 判定工作模式（默认模板复用）
-2. 加载对应行业知识文件
-3. 从飞书素材库取数（标准表、报告库）
-4. 逐页修改（约5页核心内容重写，27页微调）
-5. 多轮回读验证，清除医药术语残留
-6. 交付PPTX + 在线飞书Slides链接
+## Skill详细说明
 
-## 核心规则（不可违反）
+### industry-solution-ppt — 行业解决方案PPT制作
 
-1. **产品名称不可改**：C840集成式蒸发残渣检测系统、C860集成式灼烧残渣检测系统、C870集成式干燥失重检测系统——跨行业方案中保留不动
-2. **客户墙必须用真实logo**：做非医药行业方案时，必须先询问用户提供49家客户名单，禁止改为应用领域矩阵
-3. **禁止编造数据**：应用场景页无真实案例时，按降级策略处理（标准方法示例/应用领域说明），明确标注非真实案例
-4. **PPT内容与备注必须同时修改**：演讲者备注（`<note>`）是独立文本块，修改时必须同步
-5. **交付前必须检查医药术语残留**：搜索`制药|医药|药典|YBB|药包材|注射用水|纯化水|炽灼残渣|GMP|集采`，确保0匹配
+**功能**：基于已定稿的医药行业PPT（V1.5，32页）扩展到食品、化工、环境、建材等其他行业。
+
+**核心特性**：
+- 模板复用模式：仅重写约25%行业专属页，75%通用模块直接复用
+- 智能术语替换：自动加载对应行业知识文件，确保检测项目术语准确
+- 实战避坑指南：autoFit设置、医药术语残留检查、各页面替换清单
+- 客户墙集成：内置logo-wall子流程
+
+**使用方法**：
+```
+基于医药行业方案，帮我做一份食品行业的解决方案PPT
+```
+
+### logo-wall — 企业Logo搜集与客户墙排版
+
+**功能**：从官网批量抓取企业logo，标准化处理后生成统一规格的PPT客户墙。
+
+**核心特性**：
+- 支持无浏览器和Playwright浏览器两种抓取模式
+- SVG自动转PNG
+- 自动裁白边、fit-inside统一尺寸、品牌色重着色
+- 视觉QA拼图生成
+- 支持向用户PPT模板填充logo或从零构建
+
+**使用方法**：
+```
+帮我做一份食品行业49家企业的logo墙PPT
+```
 
 ## 目录结构
 
 ```
-industry-solution-ppt/
-├── SKILL.md                          # 主流程（0.1-0.8章节 + 模式A/B工作流）
-├── README.md                         # 本文件
-├── config.example.yaml               # 配置模板
-├── install.bat / install.sh          # 一键安装脚本
-├── references/
-│   ├── deck-structure.md             # 32页结构模板（每页标注复用类型与修改注意）
-│   ├── brand-language.md             # 品牌设计语言（配色/字体/版式）
-│   ├── fact-check.md                 # 事实审查清单
-│   ├── copywriting.md                # 文案规范（客户视角/模糊化/属地）
-│   ├── logo-wall-design.md           # 客户墙设计原则
-│   ├── logo-wall-troubleshooting.md  # logo抓取排错指南
-│   └── industry/                     # 行业知识文件（12个行业）
-│       ├── pharma-knowledge.md
-│       ├── food-knowledge.md
-│       ├── chemical-knowledge.md
-│       └── ...
-├── assets/
-│   └── logo-wall/                    # logo资产（需自行获取，见目录内README）
-└── scripts/
-    ├── scan_keywords.py              # 多格式关键词扫描
-    └── logo-wall/                    # logo抓取/标准化/排版脚本（7个）
+labthink/
+├── README.md                    # 本文件
+├── install-all.bat              # Windows一键安装全部skill
+├── install-all.sh               # Mac/Linux一键安装全部skill
+├── config.example.yaml          # 配置模板
+├── .gitignore
+└── skills/
+    ├── industry-solution-ppt/
+    │   ├── SKILL.md             # 主流程
+    │   ├── references/          # 12个行业知识文件 + 结构模板
+    │   ├── scripts/             # 关键词扫描 + logo工具链
+    │   └── assets/              # 资产说明
+    └── logo-wall/
+        ├── SKILL.md             # 主流程
+        ├── references/          # 设计原则 + 排错指南
+        ├── scripts/             # 7个logo工具脚本
+        └── assets/              # logo资产（需自行获取）
 ```
 
 ## 依赖环境
@@ -116,27 +92,42 @@ industry-solution-ppt/
 - 豆包专业版
 - 飞书连接器授权（lark-cli）
 - Python 3.x + lxml库
-- V1.5医药行业模板PPT（向管理员获取）
+- Git（用于更新skill）
 
-## 常见问题
+## 更新Skill
 
-**Q: 为什么客户墙不能用应用领域矩阵代替？**
-A: 这是公司对外方案的标准配置，真实客户logo是信任背书。必须询问用户提供49家客户名单，按6阶段流程制作。
+```bash
+cd labthink
+git pull
+install-all.bat  # 重新安装
+```
 
-**Q: 为什么产品名称不能改？**
-A: C840/C860/C870是公司注册的产品品牌名称，跨行业方案中保留不动，只改检测项目术语、标准引用、适用对象。
+## 贡献指南
 
-**Q: 飞书素材库没有访问权限怎么办？**
-A: 联系管理员开通行业标准表和检测报告库的阅读权限。无权限时可使用本地标准库和公开标准信息，但需标注来源。
+1. 在`skills/`下新建skill目录
+2. 包含`SKILL.md`（必须有name和description字段）
+3. 提交PR或直接推送
+4. 更新本README的Skill列表
 
-**Q: 新行业没有对应知识文件怎么办？**
-A: 用`scripts/scan_keywords.py`从企业材料中提取行业标准号、术语、客户类型，现场建立知识清单，后续沉淀为新知识文件。
+## 仓库维护
 
-## 版本历史
+### 设置仓库描述和主题标签
 
-- v1.0: 初始版本，基于医药行业V1.4模板
-- v1.1: 升级至V1.5模板，增加食品行业实战避坑指南（0.8节）
-- v1.2: 增加autoFit设置、各页面替换清单、医药术语残留检查清单
+在GitHub仓库页面（https://github.com/zonrin-lc/labthink）点击右上角齿轮图标设置：
+
+- **Description（描述）**：济南兰光机电技术有限公司内部豆包Skill集合，包含行业解决方案PPT制作、企业Logo墙生成等工具
+- **Website**：可留空或填写公司官网
+- **Topics（主题标签）**：`doubao` `skill` `ppt` `labthink` `automation` `python` `feishu` `lark`
+
+### 发布Release
+
+当Skill有重大更新时，创建Release：
+
+1. 进入仓库 → Releases → Create a new release
+2. Tag版本号：`v1.0.0`（语义化版本）
+3. 标题：`v1.0.0 - 初始版本`
+4. 描述：更新内容摘要
+5. 勾选 "Set as the latest release"
 
 ## 许可证
 
