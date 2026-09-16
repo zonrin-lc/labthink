@@ -2,7 +2,9 @@
 
 济南兰光机电技术有限公司内部使用的豆包Skill集合，用于提升工作效率。
 
-## 🚀 快速安装（复制这句话发给豆包）
+## 🚀 安装方式
+
+### 方式一：一键安装（推荐，复制这句话发给豆包）
 
 ```
 帮我安装labthink豆包skill集合：
@@ -11,7 +13,46 @@
 3. 告诉我安装了哪些skill
 ```
 
-安装完成后**重启豆包**即可使用。
+豆包会自动完成：安装Git → 克隆仓库 → 运行安装脚本 → 报告结果。
+
+### 方式二：手动安装
+
+**第1步：安装Git**（如果没有）
+- 下载：https://git-scm.com/download/win
+- 安装时全部默认选项
+
+**第2步：克隆仓库**
+```bash
+git clone https://github.com/zonrin-lc/labthink.git D:\labthink
+```
+
+**第3步：运行安装脚本**
+```bash
+cd D:\labthink
+install-all.bat
+```
+
+**第4步：重启豆包**
+完全关闭豆包（包括右下角托盘图标），然后重新打开。
+
+### 安装验证
+
+在豆包里输入：
+```
+你有哪些skill？列出industry-solution-ppt和logo-wall
+```
+
+看到这两个skill就说明安装成功。
+
+### 更新Skill
+
+```bash
+cd D:\labthink
+git pull
+install-all.bat
+```
+
+然后重启豆包。
 
 > 详细说明见 [同事使用指南](USAGE.md) | [快速安装卡片](QUICKSTART.md)
 
@@ -81,10 +122,10 @@ labthink/
     │   ├── scripts/             # 关键词扫描 + logo工具链
     │   └── assets/              # 资产说明
     └── logo-wall/
-        ├── SKILL.md             # 主流程
+        ├── SKILL.md             # 主流程（要求先提供49家企业名称）
         ├── references/          # 设计原则 + 排错指南
         ├── scripts/             # 7个logo工具脚本
-        └── assets/              # logo资产（需自行获取）
+        └── assets/              # 示例logo + 模板（49个占位图+template.pptx）
 ```
 
 ## 依赖环境
@@ -93,14 +134,6 @@ labthink/
 - 飞书连接器授权（lark-cli）
 - Python 3.x + lxml库
 - Git（用于更新skill）
-
-## 更新Skill
-
-```bash
-cd labthink
-git pull
-install-all.bat  # 重新安装
-```
 
 ## 贡献指南
 
