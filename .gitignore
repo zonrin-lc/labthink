@@ -4,11 +4,9 @@ config.yaml
 # 管理员内部文档（不公开，仅本地）
 ADMIN.md
 
-# Logo资产（涉及商标权）
-skills/*/assets/logos/
-skills/*/assets/*.pptx
-skills/*/assets/*.xlsx
-skills/*/assets/order.txt
+# 真实企业logo资产（涉及商标权，请勿提交到公开仓库）
+# 示例logo（assets/logos/下的占位图）可以提交，真实logo请放在其他目录
+# skills/*/assets/logos_real/
 
 # 系统文件
 .DS_Store
@@ -28,4 +26,3 @@ __pycache__/
 
 # 输出文件
 output/
-*.pptx

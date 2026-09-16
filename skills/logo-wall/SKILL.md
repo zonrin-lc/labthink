@@ -1,130 +1,134 @@
 ---
 name: logo-wall
-description: Collect official company logos (horizontal, white/transparent background) from the web and lay them out as a uniform client/partner logo wall in PowerPoint. Use when the user provides a list of company names (typically ~49) and asks to (1) gather/download/搜集 their logos for a PPT, website, or poster, (2) build a 客户墙/Logo 墙/client logo slide with consistent size and alignment, or (3) normalize an existing folder of logos that look inconsistent. Covers homepage scraping, headless-browser capture, SVG rendering, white-logo recoloring to brand colors, whitespace trimming, fit-inside scaling, grid PPT generation, and refilling the user's own PPT template. Ships with a QA-passed 49-company 医药行业 reference set (template + curated logos + order file).
+description: 企业Logo搜集与PPT客户墙排版工具。用户提供49家企业名称后，自动从官网抓取logo、标准化处理、生成统一规格的PPT客户墙。适用于"帮我做一份XX行业49家企业的logo墙"、"这是客户名单，帮我抓取logo并排版成客户墙"等场景。
 ---
 
 # Logo Wall — 企业 Logo 搜集与 PPT 客户墙排版
 
-End-to-end workflow: company name list → official logos → uniform grid slide.
+## ⚠️ 开工前必须确认
 
-**Golden rules (never skip):**
+**用户必须先提供49家企业名称**，否则不开始制作。
 
-1. **Never reorder.** Logo order in the final deck must exactly match the user's list, first to last. Do not sort by color, size, or importance unless the user explicitly asks.
-2. **Uniform cells, not uniform logos.** Constrain each logo's bounding box (fit-inside), preserve its aspect ratio. Never stretch logos to identical width/height.
-3. **White or transparent background, colored artwork.** Prefer the white/transparent-background color version of every logo. The "dark block + white mark" style (navy/gray/red block with a white logo) is the biggest source of visual noise on the wall — never ship it: recolor the white artwork to the brand color on a transparent background instead. White background is acceptable when the slide cells are white; transparent PNG is always best.
-4. **Count = the list, no padding.** Ship exactly as many logos as the user's list contains (e.g. 49), even if the grid is not a perfect rectangle. Never invent or drop companies to reach a round number.
-5. **Always do visual QA.** Build a contact sheet and LOOK at it before delivering. Automated fetches regularly return white-on-transparent (invisible) logos, wrong companies, clipped marks, or decorative lines.
+向用户索要：
+```
+请提供49家企业的完整名单（企业全称），我会按顺序抓取logo并生成客户墙PPT。
+格式示例：
+1. 雀巢（Nestlé）
+2. 百事公司（PepsiCo）
+...
+49. 思念食品
+```
 
-## Workflow
+收到名单后，整理成CSV格式：`企业名称,官网URL`（官网URL可后续补充或自动搜索）。
 
-### Phase 0 — Prepare the company list
+## 黄金法则（不可违反）
 
-- One row per company: `name,official_url1,official_url2,...` (CSV, e.g. `companies.csv`).
-- Verify official domains with web search when unsure. Two classic traps:
-  - **Wrong-name trap**: user lists may contain typos/variants (e.g. 仲景皖西 → correct is 仲景宛西; 科伦制药 → 科伦药业). Map every name to the exact legal entity before fetching.
-  - **Wrong-domain trap**: similar domains may belong to a different company entirely (e.g. chinahuadong.com is 神州数码, NOT 中美华东). After fetching, confirm the logo actually shows the requested company.
-- Some companies have no independent site (subsidiaries); use the parent group's brand logo and note it (e.g. 杭州中美华东 → 华东医药).
+1. **严格按用户名单顺序排列**，不按颜色、大小、重要性重排。
+2. **统一单元格，不统一logo尺寸**：每个logo放入相同大小的单元格（fit-inside），保持原始宽高比，禁止拉伸。
+3. **白底或透明底，彩色logo**：优先使用白底/透明底的彩色版本。"深色底块+白标"一律不用，改为重着色为品牌色。
+4. **数量=名单数量**：用户给49家就输出49个，不凑整、不删减。
+5. **必须做视觉QA**：生成拼图逐张检查，自动化抓取经常返回错公司、不可见白标、裁切不全。
 
-### Phase 1 — Bulk fetch (no browser)
+## 工作流程
+
+### 第1步：准备企业名单
+
+- 用户提供49家企业名称
+- 搜索并补充每家企业的官网URL
+- 保存为 `companies.csv`：`name,official_url`
+- 核实企业名称准确性（避免错别字、简称混用）
+
+### 第2步：批量抓取logo（无浏览器模式）
 
 ```bash
 python scripts/fetch_logos.py companies.csv --outdir logos_raw
 ```
 
-Typically succeeds for ~50–70% of companies. Failures are usually JS-rendered sites, WAF blocks, or wrong domains — fix domains first, then Phase 2.
+通常成功率50-70%，失败的进入第3步。
 
-### Phase 2 — Browser capture (headless Chromium)
+### 第3步：浏览器抓取补充（Playwright）
 
 ```bash
 pip install playwright && python -m playwright install chromium
 python scripts/browser_fetch.py remaining.csv --outdir logos_raw
-# options: --click 全拒绝   (dismiss cookie overlay)
-#          --fetch-img images/logo.png   (in-page fetch, bypasses hot-link WAF)
 ```
 
-Element screenshots produce transparent PNGs at 3x. Companies that only yield a `*_strip.png` (top-of-page strip) need a manual crop — read the strip, crop to the logo with PIL, and discard parent-group marks when the user asked for the subsidiary (e.g. crop 华鲁集团 out of 新华制药's header).
-
-If the official site is down, fall back to a high-res logo image from an encyclopedia page (Baidu Baike etc.) and note the substitution.
-
-### Phase 3 — SVG → PNG
+### 第4步：SVG转PNG
 
 ```bash
 python scripts/svg_to_png.py logos_raw
 ```
 
-### Phase 4 — Visual QA + fixes
+### 第5步：视觉QA
 
 ```bash
 python scripts/make_sheet.py logos_raw sheet.png
 ```
 
-Open the sheet and check EVERY logo against this list:
+打开拼图逐张检查：
+- 不可见（白底白标）→ 重着色为品牌色
+- 错公司 → 重新抓取
+- 深色底块+白标 → 获取彩色版本或重着色
+- 裁切不全 → 重新裁切
+- 模糊 → 重新抓取高清版
 
-- **Invisible (white on transparent)** → recolor to brand color (see `recolor` in Phase 5, or rewrite `fill="#FFFFFF"` in the SVG before rendering). Common victims: footer/header white versions.
-- **Wrong company** → wrong domain; refetch (Phase 0 trap).
-- **Dark/colored background block with white artwork** → this is the style to avoid. Get the color-on-white version instead (check the site's footer, press kit, or an existing deck from the user); otherwise recolor the white artwork to the brand color and export a transparent PNG. A plain *white* background block is fine when the slide cells are white.
-- **Clipped mark** → re-crop with a wider strip.
-- **Tiny/blurry** → re-capture at device_scale_factor=3, or fetch the `@2x` asset.
-- **Slogan/badge clutter** (CCTV badges, 股票代码, phone numbers) → crop them off.
-- Square/vertical official marks (rare) → keep as-is; fit-inside handles them.
-
-### Phase 5 — Normalize
+### 第6步：标准化
 
 ```bash
-python scripts/normalize_logos.py logos_raw --outdir logos_fit --maxw 1200 --maxh 400 \
-    --adjust adjust.csv        # optional: filename,recolor,"213,25,0" / weight,0.85
+python scripts/normalize_logos.py logos_raw --outdir logos_fit --maxw 1200 --maxh 400
 ```
 
-Trims whitespace, applies recolors, scales every logo into the same max box.
-Apply `weight` tweaks for visual balance: square/solid marks 0.85–0.9, thin/light or long-English marks 1.0 (they are already capped by the box).
+裁白边、统一尺寸、居中。
 
-### Phase 6 — Build the slide
+### 第7步：生成客户墙PPT
 
-Two modes; prefer **Mode A** whenever the user provides their own template deck.
-
-**Mode A — Refill the user's template (preferred).** Keeps the user's title, cell shapes and decorations pixel-identical; only the logo pictures are swapped in:
+**方式A：使用内置模板（推荐）**
 
 ```bash
-python scripts/refill_template.py template.pptx logos_fit order.txt out.pptx \
-    --cellw 1.36 --cellh 0.52 --pad 0.06
+python scripts/refill_template.py assets/template.pptx logos_fit assets/order.txt 客户Logo墙.pptx \
+    --cellw 1.6 --cellh 0.65 --pad 0.1
 ```
 
-It deletes every existing picture (including inside groups), locates the uniform cell AUTO_SHAPEs by size, sorts them row-major, and inserts logos fit-inside and centered. It saves to a NEW file — never overwrite the user's template. It aborts if cell count ≠ logo count.
-
-**Mode B — Build from scratch** (no template given):
+**方式B：从零构建**
 
 ```bash
-python scripts/build_logo_wall.py logos_fit order.txt out.pptx \
-    --title "..." --cols 7 --cellw 1.36 --cellh 0.52
+python scripts/build_logo_wall.py logos_fit order.txt 客户Logo墙.pptx \
+    --title "合作客户——49家行业领先企业的共同选择" --cols 7 --cellw 1.6 --cellh 0.65
 ```
 
-`order.txt` = user's company order, one filename prefix per line. Then render/inspect the deck (or rebuild the contact sheet from `logos_fit`) before delivering.
+### 第8步：交付
 
-Deliver: `logos_fit/` (white/transparent PNGs, numbered), an index file (name → file → source → notes), the .pptx, and a QA contact sheet.
+交付物：
+- `客户Logo墙.pptx`（最终PPT）
+- `logos_fit/`（标准化后的logo图片）
+- `sheet.png`（QA拼图，供用户核对）
+- `logo-index.csv`（企业名→文件名→来源→备注）
 
-## Bundled assets (医药行业案例 · 49 家)
+## 内置示例资产
 
-The `assets/` folder ships a complete, QA-passed reference case:
+`assets/` 目录包含完整示例（使用假logo占位，非真实企业）：
 
-- `assets/template.pptx` — the user's styled 16:9 template (title "医药行业服务客户——1000+制药企业的共同选择", 49 uniform 1.36″×0.52″ snip-corner cells).
-- `assets/logos/01_…png … 49_…png` — the 49 curated white/transparent-background logos, numbered in the user's list order.
-- `assets/order.txt` — the exact order file matching those 49 names.
-- `assets/logo-index.xlsx` — name → file → source → notes index.
+- `assets/template.pptx` — 16:9客户墙模板（标题+49单元格，7x7布局）
+- `assets/logos/01_示例企业1.png … 49_示例企业49.png` — 49个示例占位logo
+- `assets/order.txt` — 示例排序文件
 
-One-command rebuild of the whole case (after `normalize_logos.py` into `logos_fit`):
-
+**一键重建示例：**
 ```bash
 python scripts/normalize_logos.py assets/logos --outdir logos_fit --maxw 1200 --maxh 400
-python scripts/refill_template.py assets/template.pptx logos_fit assets/order.txt 客户Logo墙.pptx
+python scripts/refill_template.py assets/template.pptx logos_fit assets/order.txt 示例客户墙.pptx
 ```
 
-Entity-mapping notes learned the hard way for this list: 科伦 is 科伦药业 (KELUN), not 科伦集团; 中美华东 uses the parent brand 华东医药 (Huadong Medicine); 仲景宛西 (not 皖西); the 49th slot originally held 海思科制药, which the user removed — the list stays at 49.
+> 注意：示例logo为灰色占位图，实际使用时替换为真实企业logo。
 
-## Design principles & troubleshooting
+## 设计原则与排错
 
-- Read `references/design-principles.md` for the full logo-wall design rules (share with the user when they ask "怎么排版才协调").
-- Read `references/troubleshooting.md` for per-symptom fixes collected from real runs (cookie overlays, WAF 403s, mask-based SVGs rendering blank, etc.).
+- 设计原则：`references/design-principles.md`
+- 常见问题排错：`references/troubleshooting.md`
 
-## Dependencies
+## 依赖
 
-`requests beautifulsoup4 lxml pillow python-pptx` (+ `playwright` with Chromium for Phases 2–3). Install only what the current phase needs. All scripts are platform-agnostic Python; paths in examples use the current working directory.
+```
+requests beautifulsoup4 lxml pillow python-pptx
+```
+
+浏览器抓取额外需要：`playwright` + Chromium。
