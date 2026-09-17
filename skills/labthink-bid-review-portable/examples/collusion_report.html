@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>围标/串标痕迹对比报告</title>
+  <style>
+    /* ── 皮肤 token（IBM Carbon / News-Editorial）────────────────
+       本文件是样式唯一来源：docx_review.py 会提取 <style> 内容生成报告；
+       修改样式请改这里，脚本无需改动。 */
+    :root {
+      --c-primary: #0f62fe;        /* IBM Blue：唯一强调色 */
+      --c-on-primary: #ffffff;
+      --c-blue-60: #0043ce;
+      --c-blue-80: #002d9c;
+      --c-ink: #161616;            /* 主文字：炭黑 */
+      --c-ink-muted: #525252;
+      --c-ink-subtle: #8c8c8c;
+      --c-canvas: #ffffff;         /* 页面底 */
+      --c-surface-1: #f4f4f4;      /* 次级表面 */
+      --c-surface-2: #e0e0e0;
+      --c-hairline: #e0e0e0;       /* 1px 分隔线 */
+      --c-success: #24a148;
+      --c-warning: #f1c21b;
+      --c-error: #da1e28;
+      --c-info: #0f62fe;
+
+      --font: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+      --radius: 0px;               /* Carbon：方角 */
+      --ls-body: 0.16px;           /* Carbon 字距细节 */
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--c-canvas);
+      color: var(--c-ink);
+      line-height: 1.5;
+      letter-spacing: var(--ls-body);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+    /* 标题层级：display 用 weight-300，正文 400/600 */
+    h1 { font-size: 32px; font-weight: 300; line-height: 1.25; margin: 0 0 8px; }
+    .subtitle { font-size: 16px; color: var(--c-ink-muted); margin-bottom: 8px; }
+    /* 文件元信息（大小 / 修改时间 / SHA-256） */
+    .meta { font-size: 12px; color: var(--c-ink-subtle); margin-bottom: 24px; word-break: break-all; }
+    h2 {
+      font-size: 20px; font-weight: 400; line-height: 1.4;
+      margin: 32px 0 12px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--c-hairline);
+    }
+    h3 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; }
+
+    /* 卡片：白底 + 1px hairline，无阴影（Carbon） */
+    .card {
+      background: var(--c-canvas);
+      border: 1px solid var(--c-hairline);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+    .band {
+      background: var(--c-surface-1);
+      border: 1px solid var(--c-hairline);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+
+    /* 概览指标行 */
+    .kpis { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+    .kpi {
+      flex: 1 1 160px; background: var(--c-canvas);
+      border: 1px solid var(--c-hairline); border-radius: var(--radius);
+      padding: 12px 16px;
+    }
+    .kpi .label { font-size: 12px; color: var(--c-ink-subtle); letter-spacing: 0.32px; }
+    .kpi .value { font-size: 24px; font-weight: 300; margin-top: 4px; }
+
+    /* 表格：细线、方角、斑马纹 */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--c-hairline); vertical-align: top; }
+    th { font-weight: 600; color: var(--c-ink); background: var(--c-surface-1); }
+    tbody tr:nth-child(even) { background: var(--c-surface-1); }
+
+    /* 状态 pill（轻微形态，仅配色） */
+    .pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 9999px; letter-spacing: 0.32px; }
+    .pill.ok    { color: var(--c-success); border: 1px solid var(--c-success); }
+    .pill.warn  { color: #8a6d00; border: 1px solid var(--c-warning); }
+    .pill.error { color: var(--c-error); border: 1px solid var(--c-error); }
+
+    /* 得分区间条 */
+    .score-band { display: flex; gap: 12px; flex-wrap: wrap; }
+    .score-case { flex: 1 1 180px; border: 1px solid var(--c-hairline); border-radius: var(--radius); padding: 12px 16px; }
+    .score-case .name { font-size: 12px; color: var(--c-ink-subtle); }
+    .score-case .score { font-size: 24px; font-weight: 300; color: var(--c-primary); margin-top: 4px; }
+    .score-case .assume { font-size: 13px; color: var(--c-ink-muted); margin-top: 4px; }
+
+    /* 风险提示块 */
+    .risk { border-left: 3px solid var(--c-error); padding: 8px 12px; margin: 8px 0; background: var(--c-surface-1); }
+    .risk .risk-title { font-weight: 600; color: var(--c-error); }
+    .risk .risk-detail { font-size: 14px; color: var(--c-ink-muted); margin-top: 2px; }
+
+    .muted { color: var(--c-ink-muted); font-size: 13px; }
+    .note { font-size: 12px; color: var(--c-ink-subtle); margin-top: 16px; }
+    pre { white-space: pre-wrap; font-size: 13px; color: var(--c-ink-muted); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>围标/串标痕迹对比报告</h1>
+      <p class="subtitle">参与对比 2 份投标文件 · 核查时间 2026-09-17 09:41</p>
+    </header>
+
+    <h2>一、对比文件</h2>
+    <ul><li>sample_bid.docx</li><li>collusion_b.docx</li></ul>
+
+    <h2>二、逐对对比结果</h2>
+    <div class="card"><h3>sample_bid.docx  vs  collusion_b.docx　<span class="pill error">高风险</span></h3><table><thead><tr><th>信号</th><th>值</th><th>等级</th></tr></thead><tbody><tr><td>创建者</td><td>测试编制人</td><td><span class="pill error">高风险</span></td></tr><tr><td>修订作者交集</td><td>示例工程有限公司 编制组</td><td><span class="pill error">高风险</span></td></tr><tr><td>相同图片指纹</td><td>1 个相同文件（如：word/media/image1.png）</td><td><span class="pill warn">中风险</span></td></tr></tbody></table></div>
+
+    <h2>三、结论与使用注意</h2>
+    <div class="band">
+      <p>共 1 对文件：高风险 1 对、中风险 0 对。</p>
+      <p class="muted">本报告由脚本只读生成。所有信号均为<b>线索而非结论</b>：
+      创建者同为系统默认名、共用招标文件截图等都可能造成巧合命中；
+      请结合招标文件要求、开标记录、保证金来源等证据综合判断，
+      涉及围标串标认定须移交监管或法务部门依法处理。</p>
+    </div>
+
+    <p class="note">本报告未修改任何投标文件。</p>
+  </div>
+</body>
+</html>

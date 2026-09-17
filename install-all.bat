@@ -24,6 +24,10 @@ echo 安装 logo-wall...
 xcopy /E /I /Y "%SKILLS_DIR%\logo-wall" "%USER_SKILLS_DIR%\logo-wall" >nul
 if %errorlevel% equ 0 (echo   ✓ logo-wall 安装成功) else (echo   ✗ logo-wall 安装失败)
 
+echo 安装 labthink-bid-review-portable...
+xcopy /E /I /Y "%SKILLS_DIR%\labthink-bid-review-portable" "%USER_SKILLS_DIR%\labthink-bid-review-portable" >nul
+if %errorlevel% equ 0 (echo   ✓ labthink-bid-review-portable 安装成功) else (echo   ✗ labthink-bid-review-portable 安装失败)
+
 echo.
 echo ========================================
 echo 安装完成！
@@ -34,6 +38,7 @@ echo.
 echo 已安装的Skill:
 echo   1. industry-solution-ppt - 行业解决方案PPT制作
 echo   2. logo-wall - 企业Logo搜集与客户墙排版
+echo   3. labthink-bid-review-portable - 投标响应文件审阅复核
 echo.
 echo 注意事项:
 echo   1. 请确保已配置飞书连接器授权

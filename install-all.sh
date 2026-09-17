@@ -23,6 +23,10 @@ echo "安装 logo-wall..."
 cp -R "$SKILLS_DIR/logo-wall" "$USER_SKILLS_DIR/"
 if [ $? -eq 0 ]; then echo "  ✓ logo-wall 安装成功"; else echo "  ✗ logo-wall 安装失败"; fi
 
+echo "安装 labthink-bid-review-portable..."
+cp -R "$SKILLS_DIR/labthink-bid-review-portable" "$USER_SKILLS_DIR/"
+if [ $? -eq 0 ]; then echo "  ✓ labthink-bid-review-portable 安装成功"; else echo "  ✗ labthink-bid-review-portable 安装失败"; fi
+
 echo ""
 echo "========================================"
 echo "安装完成！"
@@ -33,6 +37,7 @@ echo ""
 echo "已安装的Skill:"
 echo "  1. industry-solution-ppt - 行业解决方案PPT制作"
 echo "  2. logo-wall - 企业Logo搜集与客户墙排版"
+echo "  3. labthink-bid-review-portable - 投标响应文件审阅复核"
 echo ""
 echo "注意事项:"
 echo "  1. 请确保已配置飞书连接器授权"

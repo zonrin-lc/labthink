@@ -39,10 +39,10 @@ install-all.bat
 
 在豆包里输入：
 ```
-你有哪些skill？列出industry-solution-ppt和logo-wall
+你有哪些skill？列出industry-solution-ppt、logo-wall和labthink-bid-review-portable
 ```
 
-看到这两个skill就说明安装成功。
+看到这三个skill就说明安装成功。
 
 ### 更新Skill
 
@@ -62,6 +62,7 @@ install-all.bat
 |---|---|---|
 | [industry-solution-ppt](skills/industry-solution-ppt/) | 基于医药行业方案模板，快速生成其他行业（食品/化工/环境等）解决方案PPT | ✅ 可用 |
 | [logo-wall](skills/logo-wall/) | 企业Logo搜集与PPT客户墙排版工具（支持49家客户logo墙自动生成） | ✅ 可用 |
+| [labthink-bid-review-portable](skills/labthink-bid-review-portable/) | 投标响应文件只读审阅与复核打分（14项检查+围标串标对比+评标办法得分，零依赖可移植） | ✅ 可用 |
 
 ## 使用示例
 
@@ -71,6 +72,14 @@ install-all.bat
 
 ```
 帮我做一份食品行业49家企业的logo墙PPT
+```
+
+```
+帮我审阅这份投标响应文件，输出核查报告
+```
+
+```
+对比这几家投标文件，查围标串标痕迹
 ```
 
 ## Skill详细说明
@@ -106,6 +115,25 @@ install-all.bat
 帮我做一份食品行业49家企业的logo墙PPT
 ```
 
+### labthink-bid-review-portable — 投标响应文件审阅复核
+
+**功能**：对 .docx 投标响应文件做只读检查与按评标办法重估得分，输出结构化 HTML 核查报告。
+
+**核心特性**：
+- 14 项只读检查：占位符、修订残留、TOC、符合性应答、盖章、页码、列宽实测、域错误、批注、外链、图片完整性、文档属性、修订/批注作者、隐藏文本
+- 围标/串标检测：多文件横向对比（文档属性、作者交集、正文相似度、图片指纹）
+- 评标办法抽取：从 .xlsx 里规则化抽取并给出保守/基准/乐观三档分数
+- 零依赖：纯 Python 标准库（zipfile + xml.etree），无需 pip install，可直接拷贝运行
+
+**使用方法**：
+```
+帮我审阅这份投标响应文件，输出核查报告
+```
+
+```
+对比这几家投标文件，查围标串标痕迹
+```
+
 ## 目录结构
 
 ```
@@ -126,13 +154,18 @@ labthink/
         ├── references/          # 设计原则 + 排错指南
         ├── scripts/             # 7个logo工具脚本
         └── assets/              # 示例logo + 模板（49个占位图+template.pptx）
+    └── labthink-bid-review-portable/
+        ├── SKILL.md             # 主流程（14项检查+围标串标+评标办法）
+        ├── scripts/             # docx_review + bid_collusion + xlsx_eval
+        ├── references/          # HTML报告模板
+        └── examples/            # 自测样本与39项断言
 ```
 
 ## 依赖环境
 
 - 豆包专业版
 - 飞书连接器授权（lark-cli）
-- Python 3.x + lxml库
+- Python 3.x（行业方案PPT需 lxml；投标审阅技能零依赖）
 - Git（用于更新skill）
 
 ## 贡献指南
