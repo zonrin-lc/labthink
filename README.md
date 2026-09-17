@@ -12,45 +12,33 @@
 
 ## 🚀 安装方式（推荐：豆包一句话自动安装）
 
-**同事只需要复制下面对应的一句话，发给豆包，豆包会自动完成全部安装。不需要手动下载任何东西。**
+**同事只需要复制下面对应的一句话，发给豆包，豆包会自动完成全部安装。不需要手动下载任何东西，也不需要懂技术。**
 
 ### 安装全部Skill
 
 ```
-帮我安装labthink豆包skill集合：
-1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
-2. 运行 install-all.bat 安装所有skill
-3. 告诉我安装了哪些skill
+帮我安装labthink的豆包skill集合，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
 
 ### 单独安装 industry-solution-ppt（行业方案PPT）
 
 ```
-帮我安装industry-solution-ppt skill：
-1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
-2. 运行 install-industry-solution-ppt.bat 安装
-3. 告诉我安装结果
+帮我安装industry-solution-ppt skill，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
 
 ### 单独安装 logo-wall（客户Logo墙）
 
 ```
-帮我安装logo-wall skill：
-1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
-2. 运行 install-logo-wall.bat 安装
-3. 告诉我安装结果
+帮我安装logo-wall skill，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
 
 ### 单独安装 labthink-bid-review-portable（投标文件审阅）
 
 ```
-帮我安装labthink-bid-review-portable skill：
-1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
-2. 运行 install-bid-review.bat 安装
-3. 告诉我安装结果
+帮我安装labthink-bid-review-portable skill，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
 
-豆包会自动完成：检查/安装Git → 克隆仓库 → 运行安装脚本 → 报告结果。
+豆包会自动完成：检查环境 → 下载代码 → 安装skill → 报告结果。**同事全程只需要复制一句话，其他都由豆包自动处理。**
 
 ### 安装后验证
 
@@ -65,11 +53,7 @@
 
 复制这句话发给豆包：
 ```
-帮我更新labthink skill：
-1. 进入 D:\labthink 目录
-2. 运行 git pull 拉取最新代码
-3. 重新运行 install-all.bat 更新
-4. 告诉我更新了什么
+帮我更新labthink的豆包skill
 ```
 
 ---
