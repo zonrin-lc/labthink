@@ -9,6 +9,18 @@
   不依赖 python-docx / openpyxl，也不需联网 pip install。
   只要有 Python 3.8+ 即可在任意机器运行。
 
+v1.2.0 变更（相对 v1.1.0）：
+  * 单文件围标/串标痕迹检测升级为报告中的独立重点区块
+    （“二、围标/串标风险自查（重点关注）”）：
+    聚合 12 个子项（创建者/最后修改者/公司/经理/模板/时间戳/修订作者/
+    批注作者/隐藏文本/嵌入对象/外部文件链接/共享文档标记），
+    每项给出检出情况、核验结论与处理建议，并附《招标投标法实施条例》
+    第四十条的依据说明，提示投标前逐项清零。
+  * 新增 4 项检查：文档模板残留（15）、嵌入对象（16）、
+    外部文件链接（17）、共享文档标记（18），原 14 项 → 18 项。
+  * 新增字段抽取：docProps/core.xml 的 created/modified 时间戳，
+    docProps/app.xml 的 Template / SharedDoc。
+
 v1.1.0 变更（相对 v1.0.0）：
   * 修订感知增强：收集文本时跳过 w:del 子树，已删除内容不再混入正式文本
   * 新增页眉/页脚解析：盖章、声明等关键词可命中页眉页脚
@@ -30,6 +42,10 @@ v1.1.0 变更（相对 v1.0.0）：
                          [--patterns-add ...] [--compliance-add ...] [--stamp-add ...]
                          [--score-low 80] [--score-mid 85] [--score-high 90]
                          [--score-note "评分口径说明"]
+                         [--company "本公司名称"]
+
+  --company：用于单文件围标/串标自查——文档属性公司/经理/修订批注作者等
+             与本公司的一致性判定（不提供时仅提示人工核对）。
 
 退出码：0=正常，2=文件无法解析。
 """
@@ -46,8 +62,14 @@ W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 R = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 PKG = "{http://schemas.openxmlformats.org/package/2006/relationships}"
 DC = "{http://purl.org/dc/elements/1.1/}"
+DCTERMS = "{http://purl.org/dc/terms/}"
 CP = "{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}"
 EP = "{http://schemas.openxmlformats.org/officeDocument/2006/extended-properties}"
+
+# 疑似机构名特征（用于创建者/经理等字段的串标痕迹提示）
+ORG_RE = re.compile(r"(有限|集团|公司|事务所|咨询|工作室|科技|建设|工程|招标|代理|中心|研究院|设计院)")
+# 本机/网络路径链接特征（file://、盘符、UNC）
+PATH_LINK_RE = re.compile(r"^(file://|[A-Za-z]:[\\/]|\\\\)")
 
 # Word 域未更新 / 交叉引用失效时的残留文本（投标文件高频硬伤）
 FIELD_ERRORS = (
@@ -166,27 +188,41 @@ def _comment_authors(z, names):
 
 
 def _doc_props(z, names):
-    """读取 docProps/core.xml 与 app.xml 的作者/公司/经理字段（串标痕迹）。"""
-    creator = last_modified_by = company = manager = ""
+    """读取 docProps/core.xml 与 app.xml 的作者/公司/经理/模板/共享标记/时间戳（串标痕迹）。"""
+    creator = last_modified_by = company = manager = template = shared_doc = ""
+    created = modified = ""
+
+    def _txt(e):
+        return e.text.strip() if e is not None and e.text else ""
+
     if "docProps/core.xml" in names:
         try:
             croot = ET.fromstring(z.read("docProps/core.xml"))
-            e1 = croot.find(DC + "creator")
-            e2 = croot.find(CP + "lastModifiedBy")
-            creator = e1.text.strip() if e1 is not None and e1.text else ""
-            last_modified_by = e2.text.strip() if e2 is not None and e2.text else ""
+            creator = _txt(croot.find(DC + "creator"))
+            last_modified_by = _txt(croot.find(CP + "lastModifiedBy"))
+            created = _txt(croot.find(DCTERMS + "created"))
+            modified = _txt(croot.find(DCTERMS + "modified"))
         except ET.ParseError:
             pass
     if "docProps/app.xml" in names:
         try:
             aroot = ET.fromstring(z.read("docProps/app.xml"))
-            e3 = aroot.find(EP + "Company")
-            e4 = aroot.find(EP + "Manager")
-            company = e3.text.strip() if e3 is not None and e3.text else ""
-            manager = e4.text.strip() if e4 is not None and e4.text else ""
+            company = _txt(aroot.find(EP + "Company"))
+            manager = _txt(aroot.find(EP + "Manager"))
+            template = _txt(aroot.find(EP + "Template"))
+            shared_doc = _txt(aroot.find(EP + "SharedDoc"))
         except ET.ParseError:
             pass
-    return creator, last_modified_by, company, manager
+    return {
+        "creator": creator,
+        "last_modified_by": last_modified_by,
+        "company": company,
+        "manager": manager,
+        "template": template,
+        "shared_doc": shared_doc,
+        "created": created,
+        "modified": modified,
+    }
 
 
 def _hidden_text(root):
@@ -308,8 +344,8 @@ def extract_docx(path):
         comments = _count_comments(z, names)
         field_errors = [e for e in FIELD_ERRORS if e in full_text]
 
-        # 串标痕迹：文档属性 / 修订与批注作者 / 隐藏文本
-        doc_creator, doc_last_modified_by, doc_company, doc_manager = _doc_props(z, names)
+        # 串标痕迹：文档属性 / 修订与批注作者 / 隐藏文本 / 模板 / 嵌入 / 路径链接 / 共享标记
+        props = _doc_props(z, names)
         rev_authors = set()
         for el in list(root.iter(W + "ins")) + list(root.iter(W + "del")):
             a = el.get(W + "author")
@@ -317,6 +353,9 @@ def extract_docx(path):
                 rev_authors.add(a)
         comment_authors = _comment_authors(z, names)
         hidden_samples = _hidden_text(root)
+        embeddings = [n for n in names if n.startswith("word/embeddings/")]
+        file_path_links = [t.get("Target", "") for t in ext_refs
+                           if PATH_LINK_RE.match(t.get("Target", ""))]
 
         # 表格宽度实测
         width_over, table_count = _table_width(root)
@@ -341,13 +380,20 @@ def extract_docx(path):
         "ext_refs": ext_refs,
         "comments": comments,
         "field_errors": field_errors,
-        "doc_creator": doc_creator,
-        "doc_last_modified_by": doc_last_modified_by,
-        "doc_company": doc_company,
-        "doc_manager": doc_manager,
+        # 串标痕迹字段
+        "doc_creator": props["creator"],
+        "doc_last_modified_by": props["last_modified_by"],
+        "doc_company": props["company"],
+        "doc_manager": props["manager"],
+        "doc_template": props["template"],
+        "doc_shared_doc": props["shared_doc"],
+        "doc_created": props["created"],
+        "doc_modified": props["modified"],
         "rev_authors": rev_authors,
         "comment_authors": comment_authors,
         "hidden_samples": hidden_samples,
+        "embeddings_count": len(embeddings),
+        "file_path_links": file_path_links,
         "table_width_over": width_over,
         "table_count": table_count,
         "file_size": st.st_size,
@@ -559,7 +605,223 @@ def run_checks(data, patterns, compliance_kw, stamp_kw, company=None):
         checks.append({"name": "隐藏文本", "status": "ok",
                        "evidence": "未检出隐藏文字"})
 
+    # 15) 文档模板残留（app.xml Template）——串标痕迹：用了其他投标人/中介模板
+    if data["doc_template"]:
+        checks.append({"name": "文档模板残留", "status": "warn",
+                       "evidence": "文档属性中模板为“%s”，请确认来源；"
+                                   "若来自其他投标方/中介机构模板，请清除并重设"
+                                   % data["doc_template"]})
+    else:
+        checks.append({"name": "文档模板残留", "status": "ok",
+                       "evidence": "未检出模板残留（属性为空，可能经第三方工具处理）"})
+
+    # 16) 嵌入对象——串标痕迹：嵌入了其他投标文件/合同范本
+    if data["embeddings_count"]:
+        checks.append({"name": "嵌入对象", "status": "warn",
+                       "evidence": "检出 %d 个嵌入对象（word/embeddings/），"
+                                   "可能嵌入了其他投标文件，请检查并移除"
+                                   % data["embeddings_count"]})
+    else:
+        checks.append({"name": "嵌入对象", "status": "ok",
+                       "evidence": "未检出嵌入对象"})
+
+    # 17) 外部文件链接——离线失效 + 暴露编制方本机/网络路径
+    if data["file_path_links"]:
+        checks.append({"name": "外部文件链接", "status": "warn",
+                       "evidence": "检出本机/网络路径链接 %d 处（如：%s），评标环境可能失效"
+                                   "并暴露编制方机器信息，请改内嵌或删除"
+                                   % (len(data["file_path_links"]),
+                                      "；".join(data["file_path_links"][:3]))})
+    else:
+        checks.append({"name": "外部文件链接", "status": "ok",
+                       "evidence": "未检出本机/网络路径链接"})
+
+    # 18) 共享文档标记（SharedDoc）——多人协作痕迹，与“独立编制”声明相悖
+    if data["doc_shared_doc"] and data["doc_shared_doc"].lower() in ("true", "1"):
+        checks.append({"name": "共享文档标记", "status": "warn",
+                       "evidence": "文档标记为“共享文档”（多人协作编辑），与“独立编制”声明相悖，"
+                                   "请清除协作痕迹后另存"})
+    else:
+        checks.append({"name": "共享文档标记", "status": "ok",
+                       "evidence": "未检出共享文档标记"})
+
     return checks
+
+
+# ---------------------------------------------------------------------------
+# 围标/串标风险自查区块（单文件聚合视图，报告中的重点章节）
+# ---------------------------------------------------------------------------
+
+def build_collusion_section(data, company=None):
+    """构建单文件“围标/串标风险自查”区块。
+
+    返回 (items, html)：
+      items: [{"name", "status", "found", "advice"}] 供统计与测试断言
+      html:  区块 HTML（不含 <h2>，由 build_report 插入）
+    """
+    items = []
+
+    def add(name, status, found, advice):
+        items.append({"name": name, "status": status, "found": found, "advice": advice})
+
+    # 1) 创建者
+    v = data["doc_creator"]
+    if not v:
+        add("文档属性·创建者", "ok", "未检出", "无可疑痕迹")
+    elif company and company in v:
+        add("文档属性·创建者", "ok", v, "为本公司编制人员，无异常")
+    elif ORG_RE.search(v):
+        add("文档属性·创建者", "warn", v,
+            "创建者含机构名特征，可能是其他单位编制痕迹；请核查并重置为编制人")
+    else:
+        add("文档属性·创建者", "ok", v, "个人署名，定稿前请核对是否为本公司人员")
+
+    # 2) 最后修改者
+    v = data["doc_last_modified_by"]
+    if not v:
+        add("文档属性·最后修改者", "ok", "未检出", "无可疑痕迹")
+    elif company and company in v:
+        add("文档属性·最后修改者", "ok", v, "为本公司编制人员，无异常")
+    elif ORG_RE.search(v):
+        add("文档属性·最后修改者", "warn", v,
+            "最后修改者含机构名特征，可能是其他单位痕迹；请核查并重置")
+    else:
+        add("文档属性·最后修改者", "ok", v, "个人署名，定稿前请核对是否为本公司人员")
+
+    # 3) 公司（最直接抓手）
+    v = data["doc_company"]
+    if not v:
+        add("文档属性·公司", "ok", "未检出", "无可疑痕迹（部分工具处理后属性为空）")
+    elif company and company in v:
+        add("文档属性·公司", "ok", v, "与本公司一致")
+    elif company:
+        add("文档属性·公司", "error", v,
+            "与本公司“%s”不一致——不同投标人标书残留同一公司属性，"
+            "是串标认定的最直接证据，必须清除并改为本公司全称" % company)
+    else:
+        add("文档属性·公司", "warn", v,
+            "属性中公司为其他单位名时，可能被认定为与其他投标人关联；请核查并改为本公司全称")
+
+    # 4) 经理
+    v = data["doc_manager"]
+    if not v:
+        add("文档属性·经理", "ok", "未检出", "无可疑痕迹")
+    elif company and company in v:
+        add("文档属性·经理", "ok", v, "为本公司人员，无异常")
+    elif ORG_RE.search(v):
+        add("文档属性·经理", "error", v,
+            "经理字段含机构名特征，可能是其他单位痕迹，必须清除")
+    else:
+        add("文档属性·经理", "warn", v,
+            "建议核查是否为其他单位人员；非本公司人员请清除该字段")
+
+    # 5) 模板
+    v = data["doc_template"]
+    if not v:
+        add("文档属性·模板", "ok", "未检出", "无可疑痕迹")
+    elif company and company in v:
+        add("文档属性·模板", "ok", v, "模板来源为本公司，无异常")
+    else:
+        add("文档属性·模板", "warn", v,
+            "若模板来自其他投标方/中介机构，是“同一模板编制多家标书”的信号；"
+            "请用本公司模板重排或清除该字段")
+
+    # 6) 创建/修改时间（展示，供核对多家标书生成时间线）
+    if data["doc_created"] or data["doc_modified"]:
+        add("文档创建/修改时间", "ok",
+            "%s → %s" % (data["doc_created"] or "—", data["doc_modified"] or "—"),
+            "多家投标文件在同一时段/同一机器批量生成是规律性串标信号；请核对本机生成时间线")
+    else:
+        add("文档创建/修改时间", "ok", "未检出", "无可疑痕迹")
+
+    # 7) 修订记录作者
+    authors = sorted(data["rev_authors"])
+    if not authors:
+        add("修订记录作者", "ok", "未检出", "无可疑痕迹")
+    elif company:
+        others = [a for a in authors if company not in a]
+        if others:
+            add("修订记录作者", "error", "、".join(authors),
+                "检出非本公司修订作者（%s）——多份标书出现同一修订人=串标证据；"
+                "请“接受所有修订”后另存（作者信息随修订一并消失）" % "、".join(others))
+        else:
+            add("修订记录作者", "warn", "、".join(authors),
+                "均为本公司人员，但仍有修订未接受；定稿前请接受全部修订")
+    else:
+        add("修订记录作者", "warn", "、".join(authors),
+            "修订作者含其他单位/人员时=串标证据；请接受全部修订后另存")
+
+    # 8) 批注作者
+    authors = sorted(data["comment_authors"])
+    if not authors:
+        add("批注作者", "ok", "未检出", "无可疑痕迹")
+    elif company:
+        others = [a for a in authors if company not in a]
+        if others:
+            add("批注作者", "error", "、".join(authors),
+                "检出非本公司批注作者（%s）——批注人会暴露其他编制方；请删除全部批注"
+                % "、".join(others))
+        else:
+            add("批注作者", "warn", "、".join(authors),
+                "均为本公司人员，但仍有批注残留；定稿前请删除全部批注")
+    else:
+        add("批注作者", "warn", "、".join(authors),
+            "批注作者含其他单位/人员时=串标证据；请删除全部批注")
+
+    # 9) 隐藏文本
+    v = data["hidden_samples"]
+    if not v:
+        add("隐藏文本", "ok", "未检出", "无可疑痕迹")
+    else:
+        add("隐藏文本", "warn", "%d 段（如：%s）" % (len(v), "；".join(v[:2])),
+            "隐藏文字常为内部备注/其他编制方信息，可能被读取；请清除全部隐藏文字后另存")
+
+    # 10) 嵌入对象
+    if data["embeddings_count"]:
+        add("嵌入对象", "warn", "%d 个" % data["embeddings_count"],
+            "可能嵌入了其他投标文件/OLE 对象；嵌入对象随文件分发、可能被提取比对，请移除")
+    else:
+        add("嵌入对象", "ok", "未检出", "无可疑痕迹")
+
+    # 11) 外部文件链接
+    v = data["file_path_links"]
+    if not v:
+        add("外部文件链接", "ok", "未检出", "无可疑痕迹")
+    else:
+        add("外部文件链接", "warn", "%d 处" % len(v),
+            "本机/网络路径链接会暴露编制方机器与目录，且评标环境可能失效；请改内嵌或删除")
+
+    # 12) 共享文档标记
+    v = data["doc_shared_doc"]
+    if v and v.lower() in ("true", "1"):
+        add("共享文档标记", "warn", "是",
+            "文档标记为多人协作编辑，与“独立编制”声明相悖；请关闭共享并另存")
+    else:
+        add("共享文档标记", "ok", "否", "无可疑痕迹")
+
+    n_warn = sum(1 for it in items if it["status"] in ("warn", "error"))
+    rows = "".join(
+        "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
+        % (esc(it["name"]), esc(it["found"]), pill(it["status"]), esc(it["advice"]))
+        for it in items
+    )
+    html = (
+        '<div class="band">'
+        "<p><strong>为什么看这些：</strong>评标委员会与监管部门认定串通投标，"
+        "主要依据《招标投标法实施条例》第四十条——不同投标人的投标文件由同一单位"
+        "或个人编制、委托同一单位或个人办理投标事宜、项目管理成员为同一人、"
+        "投标文件异常一致或报价呈规律性差异、相互混装等。下列痕迹全部存在于"
+        "<strong>单份投标文件自身的元数据与编辑痕迹</strong>中，"
+        "是“由同一人或同一单位编制”的最直接证据。定稿前请逐项清零，"
+        "避免被判定围标/串标。</p>"
+        '<p class="muted">本次检出 %d 项需关注（含风险与待处理）。</p>'
+        "</div>"
+        "<table>"
+        "<thead><tr><th>风险点</th><th>检出情况</th><th>核验</th>"
+        "<th>说明与处理建议</th></tr></thead>"
+        "<tbody>%s</tbody></table>"
+    ) % (n_warn, rows)
+    return items, html
 
 
 # ---------------------------------------------------------------------------
@@ -675,7 +937,8 @@ def _fmt_size(n):
     return "%d B" % n
 
 
-def build_report(title, filename, data, checks, eval_rows, score=None, score_note=None):
+def build_report(title, filename, data, checks, eval_rows, collusion_items=None,
+                 score=None, score_note=None):
     css = load_css()
     total = len(checks)
     ok = sum(1 for c in checks if c["status"] == "ok")
@@ -683,13 +946,40 @@ def build_report(title, filename, data, checks, eval_rows, score=None, score_not
     error = sum(1 for c in checks if c["status"] == "error")
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    # 二、调整项逐条核验表（全部检查项）
+    # 二、围标/串标风险自查（重点区块）
+    collusion_html = ""
+    collusion_warn = 0
+    if collusion_items:
+        rows = "".join(
+            "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
+            % (esc(it["name"]), esc(it["found"]), pill(it["status"]), esc(it["advice"]))
+            for it in collusion_items
+        )
+        collusion_warn = sum(1 for it in collusion_items if it["status"] in ("warn", "error"))
+        collusion_html = (
+            '<div class="band">'
+            "<p><strong>为什么看这些：</strong>评标委员会与监管部门认定串通投标，"
+            "主要依据《招标投标法实施条例》第四十条——不同投标人的投标文件由同一单位"
+            "或个人编制、委托同一单位或个人办理投标事宜、项目管理成员为同一人、"
+            "投标文件异常一致或报价呈规律性差异、相互混装等。下列痕迹全部存在于"
+            "<strong>单份投标文件自身的元数据与编辑痕迹</strong>中，"
+            "是“由同一人或同一单位编制”的最直接证据。定稿前请逐项清零，"
+            "避免被判定围标/串标。</p>"
+            '<p class="muted">本次检出 %d 项需关注（含风险与待处理）。</p>'
+            "</div>"
+            "<table>"
+            "<thead><tr><th>风险点</th><th>检出情况</th><th>核验</th>"
+            "<th>说明与处理建议</th></tr></thead>"
+            "<tbody>%s</tbody></table>"
+        ) % (collusion_warn, rows)
+
+    # 三、调整项逐条核验表（全部检查项）
     adj_rows = "".join(
         "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (esc(c["name"]), pill(c["status"]), esc(c["evidence"]))
         for c in checks
     )
 
-    # 三、评分风险块（error / warn 视为需拍板项）
+    # 四、评分风险块（error / warn 视为需拍板项）
     risk_rows = ""
     for c in checks:
         if c["status"] in ("error", "warn"):
@@ -699,7 +989,7 @@ def build_report(title, filename, data, checks, eval_rows, score=None, score_not
         risk_rows = '<div class="risk"><div class="risk-title">未发现显著风险</div>' \
                     '<div class="risk-detail">各项核验均通过。</div></div>'
 
-    # 四、评分工作表（来自评标办法，结构化表格）
+    # 五、评分工作表（来自评标办法，结构化表格）
     score_block = ""
     picked = build_score_worksheet(eval_rows)
     if picked:
@@ -744,7 +1034,7 @@ def build_report(title, filename, data, checks, eval_rows, score=None, score_not
     )
     note_txt = score_note or "评分口径：权重、业绩有效性判定、评分档位等以评标办法原文为准。"
 
-    # 五、待处理检查项（仅 warn/error，避免与第二节重复）
+    # 六、待处理检查项（仅 warn/error，避免与第二节重复）
     pending = [c for c in checks if c["status"] != "ok"]
     if pending:
         pend_rows = "".join(
@@ -787,22 +1077,25 @@ def build_report(title, filename, data, checks, eval_rows, score=None, score_not
     <div class="band"><p>本报告由可移植版脚本（零依赖，仅标准库）只读生成，未修改原标书文件；
     涉及得分与合规的事项须由投标人最终拍板。</p></div>
 
-    <h2>二、调整项逐条核验结果</h2>
+    <h2>二、围标/串标风险自查（重点关注）</h2>
+    %s
+
+    <h2>三、调整项逐条核验结果</h2>
     <table>
       <thead><tr><th>调整项</th><th>核验结果</th><th>证据 / 定位</th></tr></thead>
       <tbody>%s</tbody>
     </table>
 
-    <h2>三、评分风险与修改建议</h2>
+    <h2>四、评分风险与修改建议</h2>
     %s
     <div class="card"><h3>修改建议</h3><p>风险/待处理项已逐条列示，请据此修订后重新运行本脚本核验。</p></div>
 
-    <h2>四、重估得分</h2>
+    <h2>五、重估得分</h2>
     <div class="score-band">%s</div>
     %s
     <p class="muted">%s</p>
 
-    <h2>五、待处理检查项</h2>
+    <h2>六、待处理检查项</h2>
     <table>
       <thead><tr><th>检查项</th><th>状态</th><th>证据 / 处理建议</th></tr></thead>
       <tbody>%s</tbody>
@@ -814,7 +1107,7 @@ def build_report(title, filename, data, checks, eval_rows, score=None, score_not
 </html>
 """ % (esc(title), css, esc(title), esc(filename), now, meta_line,
        total, ok, warn, error, esc(score_range),
-       adj_rows, risk_rows, cases, score_block, esc(note_txt), pend_rows)
+       collusion_html, adj_rows, risk_rows, cases, score_block, esc(note_txt), pend_rows)
 
     return html
 
@@ -862,7 +1155,7 @@ def main():
     ap.add_argument("--score-high", type=int, default=None, help="乐观情形得分")
     ap.add_argument("--score-note", default=None, help="评分口径说明，覆盖默认文案")
     ap.add_argument("--company", default=None,
-                    help="本公司名称（用于串标痕迹核验：文档属性/修订批注作者与本公司一致性）")
+                    help="本公司名称（用于围标/串标自查：文档属性/修订批注作者等与本公司一致性）")
     args = ap.parse_args()
 
     if not os.path.exists(args.docx):
@@ -880,6 +1173,7 @@ def main():
     stamp_kw = _resolve_kw(args, "stamp")
 
     checks = run_checks(data, patterns, compliance_kw, stamp_kw, company=args.company)
+    collusion_items, _ = build_collusion_section(data, company=args.company)
 
     eval_rows = []
     if args.eval:
@@ -899,14 +1193,17 @@ def main():
             score[k] = v
 
     html = build_report(args.name, os.path.basename(args.docx), data, checks,
-                        eval_rows, score=score or None, score_note=args.score_note)
+                        eval_rows, collusion_items=collusion_items,
+                        score=score or None, score_note=args.score_note)
     with open(args.out, "w", encoding="utf-8") as f:
         f.write(html)
 
     ok = sum(1 for c in checks if c["status"] == "ok")
     warn = sum(1 for c in checks if c["status"] == "warn")
     error = sum(1 for c in checks if c["status"] == "error")
-    print("核查完成：检查项 %d，通过 %d / 待处理 %d / 风险 %d" % (len(checks), ok, warn, error))
+    cw = sum(1 for it in collusion_items if it["status"] in ("warn", "error"))
+    print("核查完成：检查项 %d，通过 %d / 待处理 %d / 风险 %d；围标串标自查需关注 %d 项"
+          % (len(checks), ok, warn, error, cw))
     print("报告已生成：%s" % os.path.abspath(args.out))
     return 0
 

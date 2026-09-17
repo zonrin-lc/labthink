@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 自测断言：生成样本 → 运行核心抽取与检查 → 断言关键行为。
-防止后续改动悄悄破坏“修订感知 / 页眉解析 / 域错误检测 / 占位符扫描”等核心行为。
+防止后续改动悄悄破坏“修订感知 / 页眉解析 / 域错误检测 / 占位符扫描 /
+围标串标自查区块”等核心行为。
 
 运行：python run_sample_test.py
 退出码：0=全部通过，1=存在失败。
@@ -36,7 +37,8 @@ def main():
                        cwd=HERE, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
 
-    from docx_review import extract_docx, run_checks, DEFAULTS, FIELD_ERRORS
+    from docx_review import (extract_docx, run_checks, build_collusion_section,
+                             DEFAULTS, FIELD_ERRORS)
     from xlsx_eval import extract_xlsx
 
     print("== 抽取层 ==")
@@ -56,10 +58,15 @@ def main():
     check("表格按列抽取（2 行 x 2 列）",
           len(data["tables"]) == 1 and len(data["tables"][0]) == 2
           and len(data["tables"][0][0]) == 2)
+    check("串标字段抽取：模板/共享/嵌入/路径链接/时间戳",
+          data["doc_template"] != "" and data["doc_shared_doc"] == "true"
+          and data["embeddings_count"] == 1 and len(data["file_path_links"]) == 1
+          and data["doc_created"] != "" and data["doc_modified"] != "")
 
     print("== 检查层 ==")
     checks = run_checks(data, DEFAULTS["patterns"], DEFAULTS["compliance"], DEFAULTS["stamp"])
     status = {c["name"]: c["status"] for c in checks}
+    check("检查项总数 = 18", len(checks) == 18)
     check("占位符/未填内容扫描 = error",
           status.get("占位符/未填内容扫描") == "error")
     check("修订残留 = warn",
@@ -71,9 +78,13 @@ def main():
     check("页码占位残留 = ok", status.get("页码占位残留") == "ok")
     check("域错误残留 = error", status.get("域错误残留") == "error")
     check("批注残留 = ok", status.get("批注残留") == "ok")
-    check("外部链接/引用 = ok", status.get("外部链接/引用") == "ok")
+    check("外部链接/引用 = warn（检出 file:// 外链）", status.get("外部链接/引用") == "warn")
     check("图片引用完整性 = ok", status.get("图片引用完整性") == "ok")
     check("表格列宽合计 = ok（可实测）", status.get("表格列宽合计") == "ok")
+    check("新增：文档模板残留 = warn", status.get("文档模板残留") == "warn")
+    check("新增：嵌入对象 = warn", status.get("嵌入对象") == "warn")
+    check("新增：外部文件链接 = warn", status.get("外部文件链接") == "warn")
+    check("新增：共享文档标记 = warn", status.get("共享文档标记") == "warn")
 
     print("== 表格列宽实测（超宽路径）==")
     import xml.etree.ElementTree as ET
@@ -106,6 +117,32 @@ def main():
                           DEFAULTS["stamp"], company="其他工程有限公司")
     status_o = {c["name"]: c["status"] for c in checks_o}
     check("--company 不匹配：文档属性 = warn", status_o.get("文档属性（作者/公司）") == "warn")
+
+    print("== 围标/串标自查区块（单文件聚合视图）==")
+    items, _ch = build_collusion_section(data)
+    cstat = {it["name"]: it["status"] for it in items}
+    check("自查区块含 12 个子项", len(items) == 12)
+    check("公司残留 = warn（未给 company）", cstat.get("文档属性·公司") == "warn")
+    check("模板残留 = warn", cstat.get("文档属性·模板") == "warn")
+    check("经理字段 = warn（提示核查）", cstat.get("文档属性·经理") == "warn")
+    check("嵌入对象 = warn", cstat.get("嵌入对象") == "warn")
+    check("外部文件链接 = warn", cstat.get("外部文件链接") == "warn")
+    check("共享文档标记 = warn", cstat.get("共享文档标记") == "warn")
+    check("隐藏文本 = warn", cstat.get("隐藏文本") == "warn")
+    check("修订记录作者 = warn（未给 company）", cstat.get("修订记录作者") == "warn")
+    check("批注作者 = ok（未检出）", cstat.get("批注作者") == "ok")
+    check("时间戳 = ok（展示）", cstat.get("文档创建/修改时间") == "ok")
+
+    items2, _ = build_collusion_section(data, company="示例工程有限公司")
+    c2 = {it["name"]: it["status"] for it in items2}
+    check("company 匹配：公司 = ok", c2.get("文档属性·公司") == "ok")
+    check("company 匹配：模板 = ok（模板名含本公司）", c2.get("文档属性·模板") == "ok")
+    check("company 匹配：修订作者 = warn（本公司但未接受修订）",
+          c2.get("修订记录作者") == "warn")
+
+    items3, _ = build_collusion_section(data, company="其他工程有限公司")
+    c3 = {it["name"]: it["status"] for it in items3}
+    check("company 不匹配：公司 = error", c3.get("文档属性·公司") == "error")
 
     print("== 围标/串标对比（多文件）==")
     coll = os.path.join(HERE, "collusion_b.docx")
@@ -142,9 +179,16 @@ def main():
             html = f.read()
     check("报告含 SHA-256", "SHA-256" in html)
     check("报告含三档得分 80/85/90", "80" in html and "85" in html and "90" in html)
-    check("第五节只列待办（无‘已通过’pill）",
-          "<span class=\"pill ok\">已通过</span>" not in html.split("五、待处理检查项")[1]
-          if "五、待处理检查项" in html else False)
+    check("报告含围标/串标风险自查区块",
+          "围标/串标风险自查" in html and "重点关注" in html)
+    check("报告含《招标投标法实施条例》依据说明", "招标投标法实施条例" in html)
+    check("报告含 12 个风险点（抽查 4 个）",
+          all(x in html for x in ["文档属性·公司", "文档属性·模板", "嵌入对象", "共享文档标记"]))
+    check("报告含“逐项清零”提示", "逐项清零" in html)
+    check("检查项总数 = 18 显示在概要", "检查项总数</div><div class=\"value\">18</div>" in html)
+    check("第六节只列待办（无‘已通过’pill）",
+          "<span class=\"pill ok\">已通过</span>" not in html.split("六、待处理检查项")[1]
+          if "六、待处理检查项" in html else False)
 
     print("== 评标办法抽取 ==")
     # 构造一个最小 xlsx 做零依赖验证（共享字符串 + 两个 sheet + 隐藏表）
@@ -203,7 +247,7 @@ def _make_mini_xlsx():
 <sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="4" uniqueCount="4">
 <si><t>评分项</t></si><si><t>分值</t></si><si><t>技术标</t></si><si><t>权重30%</t></si>
 </sst>"""
-    # sheet1：A1=评分项，C1=分值（B 列为空，验证列位）；A2:A3 合并且值为“技术标”
+    # sheet1：A1=评分项, C1=分值（B 列为空，验证列位）；A2:A3 合并且值为“技术标”
     S1 = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
 <mergeCells count="1"><mergeCell ref="A2:A3"/></mergeCells>

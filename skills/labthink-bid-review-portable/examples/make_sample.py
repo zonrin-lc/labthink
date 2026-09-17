@@ -13,6 +13,11 @@
   * TOC 域
   * 域错误残留（“错误！未找到引用源”）
   * 一处占位符（表格内“待补充XXX”）
+  * 串标痕迹（供单文件围标/串标自查区块断言）：
+      文档属性 创建者/最后修改者/公司/经理 + 创建/修改时间
+      app.xml Template 模板残留 + SharedDoc 共享标记
+      修订作者（本公司编制组）+ 隐藏文本
+      word/embeddings/ 嵌入对象 + file:// 本机路径外链
 """
 import zipfile
 
@@ -35,6 +40,7 @@ DOC_RELS = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
 <Relationship Id="rIdH1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>
 <Relationship Id="rIdImg1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/image1.png"/>
+<Relationship Id="rIdLink1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="file:///C:/Users/外部人员/方案.docx" TargetMode="External"/>
 </Relationships>"""
 
 # 1x1 透明 PNG（用于图片引用完整性 + 围标对比的图片指纹测试）
@@ -64,6 +70,8 @@ APP = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
 <Company>示例工程有限公司</Company>
 <Manager>张三</Manager>
+<Template>示例工程有限公司投标书模板.dotx</Template>
+<SharedDoc>true</SharedDoc>
 </Properties>"""
 
 # 注意：修订删除使用标准结构 w:del > w:r > w:delText；
@@ -115,6 +123,7 @@ def main():
         z.writestr("word/_rels/document.xml.rels", DOC_RELS)
         z.writestr("word/header1.xml", HEADER)
         z.writestr("word/media/image1.png", PNG_BYTES)
+        z.writestr("word/embeddings/oleObject1.bin", b"\x00" * 16)
         z.writestr("docProps/core.xml", CORE)
         z.writestr("docProps/app.xml", APP)
         z.writestr("word/document.xml", DOCUMENT)
