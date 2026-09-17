@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>投标响应文件核查报告</title>
+  <style>
+    /* ── 皮肤 token（IBM Carbon / News-Editorial）────────────────
+       本文件是样式唯一来源：docx_review.py 会提取 <style> 内容生成报告；
+       修改样式请改这里，脚本无需改动。 */
+    :root {
+      --c-primary: #0f62fe;        /* IBM Blue：唯一强调色 */
+      --c-on-primary: #ffffff;
+      --c-blue-60: #0043ce;
+      --c-blue-80: #002d9c;
+      --c-ink: #161616;            /* 主文字：炭黑 */
+      --c-ink-muted: #525252;
+      --c-ink-subtle: #8c8c8c;
+      --c-canvas: #ffffff;         /* 页面底 */
+      --c-surface-1: #f4f4f4;      /* 次级表面 */
+      --c-surface-2: #e0e0e0;
+      --c-hairline: #e0e0e0;       /* 1px 分隔线 */
+      --c-success: #24a148;
+      --c-warning: #f1c21b;
+      --c-error: #da1e28;
+      --c-info: #0f62fe;
+
+      --font: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+      --radius: 0px;               /* Carbon：方角 */
+      --ls-body: 0.16px;           /* Carbon 字距细节 */
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--c-canvas);
+      color: var(--c-ink);
+      line-height: 1.5;
+      letter-spacing: var(--ls-body);
+      -webkit-font-smoothing: antialiased;
+    }
+    .page { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+    /* 标题层级：display 用 weight-300，正文 400/600 */
+    h1 { font-size: 32px; font-weight: 300; line-height: 1.25; margin: 0 0 8px; }
+    .subtitle { font-size: 16px; color: var(--c-ink-muted); margin-bottom: 8px; }
+    /* 文件元信息（大小 / 修改时间 / SHA-256） */
+    .meta { font-size: 12px; color: var(--c-ink-subtle); margin-bottom: 24px; word-break: break-all; }
+    h2 {
+      font-size: 20px; font-weight: 400; line-height: 1.4;
+      margin: 32px 0 12px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--c-hairline);
+    }
+    h3 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; }
+
+    /* 卡片：白底 + 1px hairline，无阴影（Carbon） */
+    .card {
+      background: var(--c-canvas);
+      border: 1px solid var(--c-hairline);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+    .band {
+      background: var(--c-surface-1);
+      border: 1px solid var(--c-hairline);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+
+    /* 概览指标行 */
+    .kpis { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+    .kpi {
+      flex: 1 1 160px; background: var(--c-canvas);
+      border: 1px solid var(--c-hairline); border-radius: var(--radius);
+      padding: 12px 16px;
+    }
+    .kpi .label { font-size: 12px; color: var(--c-ink-subtle); letter-spacing: 0.32px; }
+    .kpi .value { font-size: 24px; font-weight: 300; margin-top: 4px; }
+
+    /* 表格：细线、方角、斑马纹 */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--c-hairline); vertical-align: top; }
+    th { font-weight: 600; color: var(--c-ink); background: var(--c-surface-1); }
+    tbody tr:nth-child(even) { background: var(--c-surface-1); }
+
+    /* 状态 pill（轻微形态，仅配色） */
+    .pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 9999px; letter-spacing: 0.32px; }
+    .pill.ok    { color: var(--c-success); border: 1px solid var(--c-success); }
+    .pill.warn  { color: #8a6d00; border: 1px solid var(--c-warning); }
+    .pill.error { color: var(--c-error); border: 1px solid var(--c-error); }
+
+    /* 得分区间条 */
+    .score-band { display: flex; gap: 12px; flex-wrap: wrap; }
+    .score-case { flex: 1 1 180px; border: 1px solid var(--c-hairline); border-radius: var(--radius); padding: 12px 16px; }
+    .score-case .name { font-size: 12px; color: var(--c-ink-subtle); }
+    .score-case .score { font-size: 24px; font-weight: 300; color: var(--c-primary); margin-top: 4px; }
+    .score-case .assume { font-size: 13px; color: var(--c-ink-muted); margin-top: 4px; }
+
+    /* 风险提示块 */
+    .risk { border-left: 3px solid var(--c-error); padding: 8px 12px; margin: 8px 0; background: var(--c-surface-1); }
+    .risk .risk-title { font-weight: 600; color: var(--c-error); }
+    .risk .risk-detail { font-size: 14px; color: var(--c-ink-muted); margin-top: 2px; }
+
+    .muted { color: var(--c-ink-muted); font-size: 13px; }
+    .note { font-size: 12px; color: var(--c-ink-subtle); margin-top: 16px; }
+    pre { white-space: pre-wrap; font-size: 13px; color: var(--c-ink-muted); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>投标响应文件核查报告</h1>
+      <p class="subtitle">sample_bid.docx · 核查时间 2026-09-17 09:41</p>
+      <p class="meta">文件：sample_bid.docx　|　大小 3.4 KB　|　最后修改 2026-09-17 09:41<br>SHA-256：3bb092f3fbc04485add3e7e245c528fdd15bd4add792ee4445444d68d38dad6c</p>
+    </header>
+
+    <h2>一、核查概要</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="label">检查项总数</div><div class="value">14</div></div>
+      <div class="kpi"><div class="label">通过 / 待处理 / 风险</div><div class="value">10 / 2 / 2</div></div>
+      <div class="kpi"><div class="label">重估得分区间</div><div class="value">80–90</div></div>
+    </div>
+    <div class="band"><p>本报告由可移植版脚本（零依赖，仅标准库）只读生成，未修改原标书文件；
+    涉及得分与合规的事项须由投标人最终拍板。</p></div>
+
+    <h2>二、调整项逐条核验结果</h2>
+    <table>
+      <thead><tr><th>调整项</th><th>核验结果</th><th>证据 / 定位</th></tr></thead>
+      <tbody><tr><td>占位符/未填内容扫描</td><td><span class="pill error">风险</span></td><td>检出疑似占位符 2 处（如：…稿中。序号内容1实施方案待补充XXX…；…序号内容1实施方案待补充XXX…）</td></tr><tr><td>修订残留（w:ins / w:del）</td><td><span class="pill warn">待处理</span></td><td>检出插入 0 处、删除 1 处，定稿前建议“接受所有修订”（已删除内容不计入正文统计）</td></tr><tr><td>目录域（TOC）</td><td><span class="pill ok">已通过</span></td><td>存在 TOC 域；请人工确认页码缓存已刷新</td></tr><tr><td>符合性应答</td><td><span class="pill ok">已通过</span></td><td>检出应答措辞 3 处（关键词：完全满足、满足、响应）</td></tr><tr><td>盖章/声明出现</td><td><span class="pill ok">已通过</span></td><td>检出 盖章、声明、签章、鲜章、法定代表人 等关键词 1 处（命中：页眉页脚）</td></tr><tr><td>页码占位残留</td><td><span class="pill ok">已通过</span></td><td>未发现 Pg / 第 页 之类占位残留</td></tr><tr><td>表格列宽合计</td><td><span class="pill ok">已通过</span></td><td>共 1 个表格；列宽合计在页面可用宽度内</td></tr><tr><td>域错误残留</td><td><span class="pill error">风险</span></td><td>检出域错误文本：错误！未找到引用源。请打开 Word 更新域/修复交叉引用</td></tr><tr><td>批注残留</td><td><span class="pill ok">已通过</span></td><td>未检出批注</td></tr><tr><td>外部链接/引用</td><td><span class="pill ok">已通过</span></td><td>未检出外部引用</td></tr><tr><td>图片引用完整性</td><td><span class="pill ok">已通过</span></td><td>图片引用完整（包内 1 个媒体文件）</td></tr><tr><td>文档属性（作者/公司）</td><td><span class="pill ok">已通过</span></td><td>文档元数据（供核对是否含其他投标人痕迹）：创建者：测试编制人；最后修改者：测试编制人；公司：示例工程有限公司；经理：张三</td></tr><tr><td>修订/批注作者</td><td><span class="pill ok">已通过</span></td><td>修订/批注作者：示例工程有限公司 编制组（请人工核对是否含其他投标人/编制方）</td></tr><tr><td>隐藏文本</td><td><span class="pill warn">待处理</span></td><td>检出 1 段隐藏文字（如：内部备注：此段隐藏文字不应出现在定稿中。），定稿前请确认是否需保留</td></tr></tbody>
+    </table>
+
+    <h2>三、评分风险与修改建议</h2>
+    <div class="risk"><div class="risk-title">占位符/未填内容扫描</div><div class="risk-detail">检出疑似占位符 2 处（如：…稿中。序号内容1实施方案待补充XXX…；…序号内容1实施方案待补充XXX…）</div></div><div class="risk"><div class="risk-title">修订残留（w:ins / w:del）</div><div class="risk-detail">检出插入 0 处、删除 1 处，定稿前建议“接受所有修订”（已删除内容不计入正文统计）</div></div><div class="risk"><div class="risk-title">域错误残留</div><div class="risk-detail">检出域错误文本：错误！未找到引用源。请打开 Word 更新域/修复交叉引用</div></div><div class="risk"><div class="risk-title">隐藏文本</div><div class="risk-detail">检出 1 段隐藏文字（如：内部备注：此段隐藏文字不应出现在定稿中。），定稿前请确认是否需保留</div></div>
+    <div class="card"><h3>修改建议</h3><p>风险/待处理项已逐条列示，请据此修订后重新运行本脚本核验。</p></div>
+
+    <h2>四、重估得分</h2>
+    <div class="score-band"><div class="score-case"><div class="name">保守情形</div><div class="score">80</div><div class="assume">按“仅确认项计分”假设</div></div><div class="score-case"><div class="name">基准情形</div><div class="score">85</div><div class="assume">按“应得项计分”假设</div></div><div class="score-case"><div class="name">乐观情形</div><div class="score">90</div><div class="assume">按“争取项计分”假设</div></div></div>
+    <div class="card"><h3>评标办法</h3><p class="muted">未提供评标办法 .xlsx 或未抽取到评分条目，请手动依据招标文件核定评分权重后填入下方三档得分。</p></div>
+    <p class="muted">评分口径：权重、业绩有效性判定、评分档位等以评标办法原文为准。</p>
+
+    <h2>五、待处理检查项</h2>
+    <table>
+      <thead><tr><th>检查项</th><th>状态</th><th>证据 / 处理建议</th></tr></thead>
+      <tbody><tr><td>占位符/未填内容扫描</td><td><span class="pill error">风险</span></td><td>检出疑似占位符 2 处（如：…稿中。序号内容1实施方案待补充XXX…；…序号内容1实施方案待补充XXX…）</td></tr><tr><td>修订残留（w:ins / w:del）</td><td><span class="pill warn">待处理</span></td><td>检出插入 0 处、删除 1 处，定稿前建议“接受所有修订”（已删除内容不计入正文统计）</td></tr><tr><td>域错误残留</td><td><span class="pill error">风险</span></td><td>检出域错误文本：错误！未找到引用源。请打开 Word 更新域/修复交叉引用</td></tr><tr><td>隐藏文本</td><td><span class="pill warn">待处理</span></td><td>检出 1 段隐藏文字（如：内部备注：此段隐藏文字不应出现在定稿中。），定稿前请确认是否需保留</td></tr></tbody>
+    </table>
+
+    <p class="note">本报告为只读核查结果，未修改原标书文件；涉及得分与合规的事项须由投标人最终拍板。</p>
+  </div>
+</body>
+</html>
