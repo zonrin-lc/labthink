@@ -23,6 +23,22 @@
 - "投标文件合规性检查"
 - "检查投标文件有没有围标串标风险"
 
+## 安装方式
+
+### 方式一：单独安装（推荐）
+
+双击运行仓库根目录的 `install-bid-review.bat`
+
+### 方式二：豆包自动安装
+
+复制这句话发给豆包：
+```
+帮我安装labthink-bid-review-portable skill：
+1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
+2. 运行 install-bid-review.bat 安装
+3. 告诉我安装结果
+```
+
 ## 使用方法
 
 在豆包中直接说"帮我审阅这份投标响应文件"并上传 `.docx` 投标文件，或命令行运行：

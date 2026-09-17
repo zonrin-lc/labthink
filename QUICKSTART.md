@@ -3,10 +3,7 @@
 ## 复制下面这句话，发给豆包
 
 ```
-帮我安装labthink豆包skill集合：
-1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
-2. 进入目录运行 install-all.bat 安装所有skill
-3. 告诉我安装了哪些skill
+帮我安装labthink的豆包skill集合，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
 
 ## 安装完成后
