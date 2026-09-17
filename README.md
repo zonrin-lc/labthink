@@ -4,36 +4,18 @@
 
 ## 📦 Skill列表
 
-| Skill | 说明 | 单独安装脚本 |
-|---|---|---|
-| [industry-solution-ppt](skills/industry-solution-ppt/) | 行业解决方案PPT制作（通用版，基于V1.6模板扩展） | `install-industry-solution-ppt.bat` |
-| [logo-wall](skills/logo-wall/) | 企业Logo搜集与PPT客户墙排版（49家客户logo墙自动生成） | `install-logo-wall.bat` |
-| [labthink-gravimetric-ppt](skills/labthink-gravimetric-ppt/) | 兰光重量分析产品行业方案PPT（专业版，四套版式可选） | `install-labthink-gravimetric-ppt.bat` |
-
-## 🚀 安装方式
-
-### 方式一：单独安装（推荐）
-
-根据需要选择安装对应的Skill，双击运行对应的安装脚本：
-
-| 需求 | 运行脚本 |
+| Skill | 说明 |
 |---|---|
-| 只做行业解决方案PPT | `install-industry-solution-ppt.bat` |
-| 只做客户Logo墙 | `install-logo-wall.bat` |
-| 兰光重量分析产品专用方案 | `install-labthink-gravimetric-ppt.bat` |
-| 全部安装 | `install-all.bat`（可选择安装哪些） |
+| [industry-solution-ppt](skills/industry-solution-ppt/) | 行业解决方案PPT制作（通用版，基于V1.6模板扩展） |
+| [logo-wall](skills/logo-wall/) | 企业Logo搜集与PPT客户墙排版（49家客户logo墙自动生成） |
+| [labthink-bid-review-portable](skills/labthink-bid-review-portable/) | 投标响应文件只读审阅与复核打分（14项检查+围标串标+评标办法，零依赖） |
 
-### 方式二：豆包自动安装（复制这句话发给豆包）
+## 🚀 安装方式（推荐：豆包一句话自动安装）
 
-**安装单个Skill（以industry-solution-ppt为例）：**
-```
-帮我安装industry-solution-ppt skill：
-1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
-2. 运行 install-industry-solution-ppt.bat 安装
-3. 告诉我安装结果
-```
+**同事只需要复制下面对应的一句话，发给豆包，豆包会自动完成全部安装。不需要手动下载任何东西。**
 
-**安装全部Skill：**
+### 安装全部Skill
+
 ```
 帮我安装labthink豆包skill集合：
 1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
@@ -41,7 +23,60 @@
 3. 告诉我安装了哪些skill
 ```
 
-### 方式三：手动安装
+### 单独安装 industry-solution-ppt（行业方案PPT）
+
+```
+帮我安装industry-solution-ppt skill：
+1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
+2. 运行 install-industry-solution-ppt.bat 安装
+3. 告诉我安装结果
+```
+
+### 单独安装 logo-wall（客户Logo墙）
+
+```
+帮我安装logo-wall skill：
+1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
+2. 运行 install-logo-wall.bat 安装
+3. 告诉我安装结果
+```
+
+### 单独安装 labthink-bid-review-portable（投标文件审阅）
+
+```
+帮我安装labthink-bid-review-portable skill：
+1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
+2. 运行 install-bid-review.bat 安装
+3. 告诉我安装结果
+```
+
+豆包会自动完成：检查/安装Git → 克隆仓库 → 运行安装脚本 → 报告结果。
+
+### 安装后验证
+
+安装完成后，在豆包里输入：
+```
+你有哪些skill？列出已安装的skill
+```
+
+看到对应的skill就说明安装成功。
+
+### 更新Skill
+
+复制这句话发给豆包：
+```
+帮我更新labthink skill：
+1. 进入 D:\labthink 目录
+2. 运行 git pull 拉取最新代码
+3. 重新运行 install-all.bat 更新
+4. 告诉我更新了什么
+```
+
+---
+
+## 🔧 备选：手动安装（不推荐）
+
+如果豆包自动安装失败，可手动操作：
 
 **第1步：安装Git**（如果没有）
 - 下载：https://git-scm.com/download/win
@@ -63,26 +98,7 @@ install-all.bat                      # 全部安装（可选择）
 **第4步：重启豆包**
 完全关闭豆包（包括右下角托盘图标），然后重新打开。
 
-### 安装验证
-
-在豆包里输入：
-```
-你有哪些skill？列出已安装的skill
-```
-
-看到对应的skill就说明安装成功。
-
-### 更新Skill
-
-```bash
-cd D:\labthink
-git pull
-install-industry-solution-ppt.bat   # 重新运行对应安装脚本
-```
-
-然后重启豆包。
-
-> 详细说明见 [同事使用指南](USAGE.md) | [快速安装卡片](QUICKSTART.md)
+---
 
 ## 📖 Skill详细说明
 
@@ -118,20 +134,23 @@ install-industry-solution-ppt.bat   # 重新运行对应安装脚本
 帮我做一份食品行业49家企业的logo墙PPT
 ```
 
-### labthink-gravimetric-ppt — 兰光重量分析产品行业方案PPT（专业版）
+### labthink-bid-review-portable — 投标响应文件审阅复核
 
-**功能**：济南兰光重量分析产品（C840蒸发残渣/C860灼烧残渣/C870干燥失重）行业解决方案PPT制作，内置四套已验证版式。
+**功能**：对 .docx 投标响应文件做只读检查与按评标办法重估得分，输出结构化 HTML 核查报告。
 
 **核心特性**：
-- 四套版式可选：A深蓝金（默认）/ B墨绿金 / C米白深蓝金 / D蓝青金
-- 12个行业知识文件：医药/食品/化工/环境/冶金/建材/橡胶/塑料/烟草/饲料/造纸/能源
-- 49家医药客户Logo资产内置
-- 跨行业术语对照表，避免术语混用
-- 飞书知识库标准检索
+- 14 项只读检查：占位符、修订残留、TOC、符合性应答、盖章、页码、列宽实测、域错误、批注、外链、图片完整性、文档属性、修订/批注作者、隐藏文本
+- 围标/串标检测：多文件横向对比（文档属性、作者交集、正文相似度、图片指纹）
+- 评标办法抽取：从 .xlsx 里规则化抽取并给出保守/基准/乐观三档分数
+- 零依赖：纯 Python 标准库（zipfile + xml.etree），无需 pip install，可直接拷贝运行
 
 **使用方法**：
 ```
-做一份食品行业的重量分析解决方案PPT，用版式A
+帮我审阅这份投标响应文件，输出核查报告
+```
+
+```
+对比这几家投标文件，查围标串标痕迹
 ```
 
 ## 📁 目录结构
@@ -143,7 +162,7 @@ labthink/
 ├── install-all.sh                         # Mac/Linux全部安装
 ├── install-industry-solution-ppt.bat      # 单独安装 industry-solution-ppt
 ├── install-logo-wall.bat                  # 单独安装 logo-wall
-├── install-labthink-gravimetric-ppt.bat   # 单独安装 labthink-gravimetric-ppt
+├── install-bid-review.bat                 # 单独安装 labthink-bid-review-portable
 ├── config.example.yaml                    # 配置模板
 ├── .gitignore
 └── skills/
@@ -161,20 +180,20 @@ labthink/
     │   ├── references/                    # 设计原则 + 排错指南
     │   ├── scripts/                       # 7个logo工具脚本
     │   └── assets/                        # 示例logo + 模板
-    └── labthink-gravimetric-ppt/
+    └── labthink-bid-review-portable/
         ├── README.md                      # 单独说明
         ├── SKILL.md                       # 主流程
-        ├── references/                    # 行业知识 + 版式设计 + 术语对照
-        ├── scripts/                       # 工具脚本
-        └── assets/                        # 模板 + logo资产
+        ├── references/                    # HTML报告模板
+        ├── scripts/                       # docx_review + bid_collusion + xlsx_eval
+        └── examples/                      # 自测样本
 ```
 
 ## 🔧 依赖环境
 
 - 豆包专业版
-- 飞书连接器授权（lark-cli）
-- Python 3.x + lxml库
-- Git（用于更新skill）
+- 飞书连接器授权（industry-solution-ppt需要，由管理员统一开通）
+- Python 3.x（industry-solution-ppt需 lxml；投标审阅技能零依赖）
+- Git（豆包自动安装时会自动检查/安装）
 
 ## 🤝 贡献指南
 
@@ -190,8 +209,8 @@ labthink/
 
 在GitHub仓库页面（https://github.com/zonrin-lc/labthink）点击右上角齿轮图标设置：
 
-- **Description（描述）**：济南兰光机电技术有限公司内部豆包Skill集合，包含行业解决方案PPT制作、企业Logo墙生成等工具
-- **Topics（主题标签）**：`doubao` `skill` `ppt` `labthink` `automation` `python` `feishu` `lark`
+- **Description（描述）**：济南兰光机电技术有限公司内部豆包Skill集合，包含行业解决方案PPT制作、企业Logo墙生成、投标文件审阅等工具
+- **Topics（主题标签）**：`doubao` `skill` `ppt` `labthink` `automation` `python` `feishu` `lark` `bid-review`
 
 ## 📄 许可证
 
