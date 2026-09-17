@@ -5,18 +5,15 @@
 ### 步骤1：复制下面这句话，发给豆包
 
 ```
-帮我安装labthink豆包skill集合：
-1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
-2. 进入目录运行 install-all.bat 安装所有skill
-3. 告诉我安装了哪些skill
+帮我安装labthink的豆包skill集合，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
 
 ### 步骤2：等待豆包完成安装
 
 豆包会自动执行：
-- ✅ 安装Git（如果没有）
-- ✅ 克隆仓库到 `D:\labthink`
-- ✅ 运行安装脚本，复制skill到豆包目录
+- ✅ 检查环境
+- ✅ 下载代码
+- ✅ 安装skill到豆包目录
 - ✅ 报告安装结果
 
 ### 步骤3：重启豆包
@@ -27,14 +24,35 @@
 
 在豆包里输入：
 ```
-你有哪些skill？列出industry-solution-ppt和logo-wall
+你有哪些skill？列出已安装的skill
 ```
 
-看到这两个skill就说明安装成功。
+看到对应的skill就说明安装成功。
 
 ---
 
-## 二、使用方法
+## 二、单独安装某个Skill
+
+如果只需要某一个skill，复制对应的一句话发给豆包：
+
+**行业方案PPT：**
+```
+帮我安装labthink-industry-solution-ppt skill，仓库地址：https://github.com/zonrin-lc/labthink.git
+```
+
+**客户Logo墙：**
+```
+帮我安装labthink-logo-wall skill，仓库地址：https://github.com/zonrin-lc/labthink.git
+```
+
+**投标文件审阅：**
+```
+帮我安装labthink-bid-review-portable skill，仓库地址：https://github.com/zonrin-lc/labthink.git
+```
+
+---
+
+## 三、使用方法
 
 ### 行业解决方案PPT
 
@@ -51,18 +69,24 @@
 [粘贴客户名单]
 ```
 
+### 投标文件审阅
+
+```
+帮我审阅这份投标响应文件，输出核查报告
+```
+
 ---
 
-## 三、更新Skill
+## 四、更新Skill
 
 豆包里说：
 ```
-帮我更新labthink的skill，进入D:\labthink目录执行git pull，然后重新运行install-all.bat
+帮我更新labthink的豆包skill
 ```
 
 ---
 
-## 四、常见问题
+## 五、常见问题
 
 **Q: 安装失败怎么办？**
 A: 把报错截图发给管理员（刘启超）。
@@ -75,7 +99,7 @@ A: 联系管理员获取logo资产包。
 
 ---
 
-## 五、联系管理员
+## 六、联系管理员
 
 - 仓库地址：https://github.com/zonrin-lc/labthink
 - 管理员：刘启超

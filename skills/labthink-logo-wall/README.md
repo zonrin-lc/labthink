@@ -1,11 +1,11 @@
-# Logo Wall Skill — 企业 Logo 搜集与 PPT 客户墙排版
+# labthink-logo-wall — 企业 Logo 搜集与 PPT 客户墙排版
 
 **这是什么**：一个跨平台可用的 Skill 包，把"给一批公司名单 → 搜集官方 Logo → 排版成整齐的 PPT 客户墙"全流程固化成了方法论 + 脚本 + 现成素材。在任何支持读取文件的 AI 平台（Kimi、Claude、ChatGPT、Copilot 等）上，把本包解压后交给 AI，让它先读 `SKILL.md` 即可开工。
 
 ## 包结构
 
 ```
-logo-wall/
+labthink-logo-wall/
 ├── SKILL.md                  ← 入口：完整工作流（Phase 0-6）与五条金律，AI 先读这个
 ├── scripts/                  ← 7 个平台无关的 Python 脚本
 │   ├── fetch_logos.py        ← 批量从官网抓 Logo（无需浏览器）

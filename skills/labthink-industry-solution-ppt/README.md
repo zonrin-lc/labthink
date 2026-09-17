@@ -1,4 +1,4 @@
-# industry-solution-ppt
+# labthink-industry-solution-ppt
 
 行业解决方案PPT制作Skill（通用版）。基于企业提供的参考材料（公司介绍、产品手册、检测报告、行业标准、资质荣誉等）制作面向特定行业的解决方案PPT及其内容稿。
 
@@ -20,23 +20,20 @@
 
 ## 安装方式
 
-### 方式一：单独安装（推荐）
-
-双击运行仓库根目录的 `install-industry-solution-ppt.bat`
-
-### 方式二：一键安装全部
-
-双击运行仓库根目录的 `install-all.bat`，选择安装全部或指定Skill
-
-### 方式三：豆包自动安装
+### 方式一：豆包自动安装（推荐）
 
 复制这句话发给豆包：
 ```
-帮我安装industry-solution-ppt skill：
-1. 用git克隆仓库 https://github.com/zonrin-lc/labthink.git 到 D:\labthink
-2. 运行 install-industry-solution-ppt.bat 安装
-3. 告诉我安装结果
+帮我安装labthink-industry-solution-ppt skill，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
+
+### 方式二：单独安装
+
+双击运行仓库根目录的 `install-labthink-industry-solution-ppt.bat`
+
+### 方式三：一键安装全部
+
+双击运行仓库根目录的 `install-all.bat`，选择安装全部或指定Skill
 
 ## 使用方法
 
@@ -54,7 +51,7 @@
 ## 目录结构
 
 ```
-industry-solution-ppt/
+labthink-industry-solution-ppt/
 ├── SKILL.md                          # 主流程文档
 ├── assets/
 │   ├── templates/

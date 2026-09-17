@@ -1,5 +1,5 @@
 ---
-name: logo-wall
+name: labthink-logo-wall
 description: 企业Logo搜集与PPT客户墙排版工具。用户提供49家企业名称后，自动从官网抓取logo、标准化处理、生成统一规格的PPT客户墙。适用于"帮我做一份XX行业49家企业的logo墙"、"这是客户名单，帮我抓取logo并排版成客户墙"等场景。
 ---
 

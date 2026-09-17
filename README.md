@@ -6,8 +6,8 @@
 
 | Skill | 说明 |
 |---|---|
-| [industry-solution-ppt](skills/industry-solution-ppt/) | 行业解决方案PPT制作（通用版，基于V1.6模板扩展） |
-| [logo-wall](skills/logo-wall/) | 企业Logo搜集与PPT客户墙排版（49家客户logo墙自动生成） |
+| [labthink-industry-solution-ppt](skills/labthink-industry-solution-ppt/) | 行业解决方案PPT制作（通用版，基于V1.6模板扩展） |
+| [labthink-logo-wall](skills/labthink-logo-wall/) | 企业Logo搜集与PPT客户墙排版（49家客户logo墙自动生成） |
 | [labthink-bid-review-portable](skills/labthink-bid-review-portable/) | 投标响应文件只读审阅与复核打分（14项检查+围标串标+评标办法，零依赖） |
 
 ## 🚀 安装方式（推荐：豆包一句话自动安装）
@@ -20,16 +20,16 @@
 帮我安装labthink的豆包skill集合，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
 
-### 单独安装 industry-solution-ppt（行业方案PPT）
+### 单独安装 labthink-industry-solution-ppt（行业方案PPT）
 
 ```
-帮我安装industry-solution-ppt skill，仓库地址：https://github.com/zonrin-lc/labthink.git
+帮我安装labthink-industry-solution-ppt skill，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
 
-### 单独安装 logo-wall（客户Logo墙）
+### 单独安装 labthink-logo-wall（客户Logo墙）
 
 ```
-帮我安装logo-wall skill，仓库地址：https://github.com/zonrin-lc/labthink.git
+帮我安装labthink-logo-wall skill，仓库地址：https://github.com/zonrin-lc/labthink.git
 ```
 
 ### 单独安装 labthink-bid-review-portable（投标文件审阅）
@@ -74,9 +74,9 @@ git clone https://github.com/zonrin-lc/labthink.git D:\labthink
 **第3步：运行安装脚本**
 ```bash
 cd D:\labthink
-install-industry-solution-ppt.bat   # 或其他单独安装脚本
+install-labthink-industry-solution-ppt.bat   # 或其他单独安装脚本
 # 或
-install-all.bat                      # 全部安装（可选择）
+install-all.bat                                # 全部安装（可选择）
 ```
 
 **第4步：重启豆包**
@@ -86,7 +86,7 @@ install-all.bat                      # 全部安装（可选择）
 
 ## 📖 Skill详细说明
 
-### industry-solution-ppt — 行业解决方案PPT制作（通用版）
+### labthink-industry-solution-ppt — 行业解决方案PPT制作（通用版）
 
 **功能**：基于已定稿的医药行业PPT（V1.6，32页，C840/C860/C870场景页各含2个真实案例）扩展到食品、化工、环境、建材等其他行业。
 
@@ -101,7 +101,7 @@ install-all.bat                      # 全部安装（可选择）
 基于医药行业方案，帮我做一份食品行业的解决方案PPT
 ```
 
-### logo-wall — 企业Logo搜集与客户墙排版
+### labthink-logo-wall — 企业Logo搜集与客户墙排版
 
 **功能**：从官网批量抓取企业logo，标准化处理后生成统一规格的PPT客户墙。
 
@@ -141,48 +141,48 @@ install-all.bat                      # 全部安装（可选择）
 
 ```
 labthink/
-├── README.md                              # 本文件
-├── install-all.bat                        # 全部安装（可选择）
-├── install-all.sh                         # Mac/Linux全部安装
-├── install-industry-solution-ppt.bat      # 单独安装 industry-solution-ppt
-├── install-logo-wall.bat                  # 单独安装 logo-wall
-├── install-bid-review.bat                 # 单独安装 labthink-bid-review-portable
-├── config.example.yaml                    # 配置模板
+├── README.md                                    # 本文件
+├── install-all.bat                              # 全部安装（可选择）
+├── install-all.sh                               # Mac/Linux全部安装
+├── install-labthink-industry-solution-ppt.bat   # 单独安装 行业方案PPT
+├── install-labthink-logo-wall.bat               # 单独安装 客户Logo墙
+├── install-bid-review.bat                       # 单独安装 投标文件审阅
+├── config.example.yaml                          # 配置模板
 ├── .gitignore
 └── skills/
-    ├── industry-solution-ppt/
-    │   ├── README.md                      # 单独说明
-    │   ├── SKILL.md                       # 主流程
-    │   ├── references/                    # 12个行业知识文件 + 结构模板
-    │   ├── scripts/                       # 关键词扫描 + logo工具链
+    ├── labthink-industry-solution-ppt/
+    │   ├── README.md                            # 单独说明
+    │   ├── SKILL.md                             # 主流程
+    │   ├── references/                          # 12个行业知识文件 + 结构模板
+    │   ├── scripts/                             # 关键词扫描 + logo工具链
     │   └── assets/
-    │       ├── templates/                 # 制药行业V1.6模板
-    │       └── logo-wall/                 # 客户墙资产
-    ├── logo-wall/
-    │   ├── README.md                      # 单独说明
-    │   ├── SKILL.md                       # 主流程（要求先提供49家企业名称）
-    │   ├── references/                    # 设计原则 + 排错指南
-    │   ├── scripts/                       # 7个logo工具脚本
-    │   └── assets/                        # 示例logo + 模板
+    │       ├── templates/                       # 制药行业V1.6模板
+    │       └── logo-wall/                       # 客户墙资产
+    ├── labthink-logo-wall/
+    │   ├── README.md                            # 单独说明
+    │   ├── SKILL.md                             # 主流程（要求先提供49家企业名称）
+    │   ├── references/                          # 设计原则 + 排错指南
+    │   ├── scripts/                             # 7个logo工具脚本
+    │   └── assets/                              # 示例logo + 模板
     └── labthink-bid-review-portable/
-        ├── README.md                      # 单独说明
-        ├── SKILL.md                       # 主流程
-        ├── references/                    # HTML报告模板
-        ├── scripts/                       # docx_review + bid_collusion + xlsx_eval
-        └── examples/                      # 自测样本
+        ├── README.md                            # 单独说明
+        ├── SKILL.md                             # 主流程
+        ├── references/                          # HTML报告模板
+        ├── scripts/                             # docx_review + bid_collusion + xlsx_eval
+        └── examples/                            # 自测样本
 ```
 
 ## 🔧 依赖环境
 
 - 豆包专业版
-- 飞书连接器授权（industry-solution-ppt需要，由管理员统一开通）
-- Python 3.x（industry-solution-ppt需 lxml；投标审阅技能零依赖）
+- 飞书连接器授权（labthink-industry-solution-ppt需要，由管理员统一开通）
+- Python 3.x（labthink-industry-solution-ppt需 lxml；投标审阅技能零依赖）
 - Git（豆包自动安装时会自动检查/安装）
 
 ## 🤝 贡献指南
 
-1. 在`skills/`下新建skill目录
-2. 包含`SKILL.md`（必须有name和description字段）
+1. 在`skills/`下新建skill目录，名称以`labthink-`开头
+2. 包含`SKILL.md`（必须有name和description字段，name也以`labthink-`开头）
 3. 创建对应的`install-<skill-name>.bat`单独安装脚本
 4. 在本README的Skill列表中添加条目
 5. 提交PR或直接推送
